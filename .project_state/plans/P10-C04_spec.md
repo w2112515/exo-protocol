@@ -1,13 +1,35 @@
-"use client";
+# P10-C04: 更新 SkillBlinkCard 组件显示增强字段
 
-import { useState } from "react";
-import { GlassCard } from "@/components/ui/glass-card";
-import { Skill } from "@/lib/mock-data";
+## Meta
+- **Type**: `Critical / UI`
+- **Risk Level**: 🔴 High (核心展示组件)
+- **depends_on**: P10-C03
+
+## Input Files
+- `exo-frontend/components/blinks/skill-blink-card.tsx` (88 行)
+- `exo-frontend/app/skills/page.tsx` (136 行)
+
+## External Dependencies
+| 资源 | 类型 | 状态 |
+|------|------|------|
+| 无外部依赖 | - | ✓ |
+
+## Action Steps
+
+### Step 1: 辅助函数与配置 (直接在组件文件顶部定义)
+
+为了保持组件自包含，请直接在 `skill-blink-card.tsx` 的 imports 下方定义以下内容。
+
+**需要导入的图标**:
+```typescript
 import { 
   Terminal, MessageSquareText, BarChart3, Eye, Database, Briefcase, BrainCircuit, // Categories
   User, CheckCircle2, TrendingUp, Zap, Rocket // UI Elements
 } from "lucide-react";
+```
 
+**辅助代码**:
+```typescript
 // 1. 价格格式化
 function formatPrice(lamports: number): string {
   const sol = lamports / 1_000_000_000;
@@ -27,34 +49,19 @@ const CATEGORY_ICONS: Record<string, any> = {
   "business": Briefcase,
   "default": BrainCircuit
 };
+```
 
-// 3. 截断地址
-function truncateAddress(address: string): string {
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
-}
+### Step 2: 重构 SkillBlinkCard 组件 UI
 
-// 4. Solscan 链接
-function getSolscanUrl(address: string): string {
-  return `https://solscan.io/account/${address}?cluster=devnet`;
-}
+**布局策略**: Grid 布局，严格控制间距。
 
-interface SkillBlinkCardProps {
-    skill: Skill;
-}
-
-export function SkillBlinkCard({ skill }: SkillBlinkCardProps) {
+```tsx
+export function SkillBlinkCard({ skill }: { skill: Skill }) {
   const [copied, setCopied] = useState(false);
   const IconComponent = CATEGORY_ICONS[skill.category] || CATEGORY_ICONS.default;
 
   const handleCopy = async () => {
-    try {
-        const url = `${window.location.origin}/api/actions/skill/${skill.skill_id}`;
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-        console.error('Failed to copy to clipboard:', err);
-    }
+    // ... copy logic
   };
 
   return (
@@ -155,47 +162,103 @@ export function SkillBlinkCard({ skill }: SkillBlinkCardProps) {
       </div>
     
       {/* Footer: Tags & Actions */}
-      <div className="mt-auto p-4 pt-0 space-y-4">
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
-          {skill.tags?.slice(0, 3).map(tag => (
-            <span key={tag} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-white/40 border border-white/5">
-              #{tag}
-            </span>
-          ))}
-        </div>
 
-        {/* Actions: Dual Button */}
-        <div className="grid grid-cols-2 gap-3">
-           <button
-               onClick={handleCopy}
-               className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-400 hover:bg-yellow-500/20 transition-all"
-           >
-               {copied ? (
-                   <>
-                       <CheckCircle2 className="w-3.5 h-3.5" />
-                       <span>Copied</span>
-                   </>
-               ) : (
-                   <>
-                       <Zap className="w-3.5 h-3.5" />
-                       <span>Copy Blink</span>
-                   </>
-               )}
-           </button>
-           
-           <a
-               href={`https://dial.to/?action=solana-action:${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/api/actions/skill/${skill.skill_id}` : '')}&cluster=devnet`}
-               target="_blank"
-               rel="noopener noreferrer"
-               className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-white/50 hover:bg-white/10 hover:text-white transition-all"
-           >
-               <Rocket className="w-3.5 h-3.5" />
-               <span>Try Now</span>
-           </a>
-        </div>
-      </div>
+  <div className="mt-auto p-4 pt-0 space-y-4">
+    {/* Tags */}
+    <div className="flex flex-wrap gap-1.5">
+      {skill.tags?.slice(0, 3).map(tag => (
+        <span key={tag} className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-white/40 border border-white/5">
+          #{tag}
+        </span>
+      ))}
+    </div>
 
-    </GlassCard>
-  );
+    {/* Actions: Dual Button */}
+    <div className="grid grid-cols-2 gap-3">
+       <button
+           onClick={handleCopy}
+           className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-xs font-bold text-yellow-400 hover:bg-yellow-500/20 transition-all"
+       >
+           {copied ? (
+               <>
+                   <CheckCircle2 className="w-3.5 h-3.5" />
+                   <span>Copied</span>
+               </>
+           ) : (
+               <>
+                   <Zap className="w-3.5 h-3.5" />
+                   <span>Copy Blink</span>
+               </>
+           )}
+       </button>
+       
+       <a
+           href={`https://dial.to/?action=solana-action:${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/api/actions/skill/${skill.skill_id}` : '')}&cluster=devnet`}
+           target="_blank"
+           rel="noopener noreferrer"
+           className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-white/50 hover:bg-white/10 hover:text-white transition-all"
+       >
+           <Rocket className="w-3.5 h-3.5" />
+           <span>Try Now</span>
+       </a>
+    </div>
+  </div>
+
+</GlassCard>
+```
+
+### Step 3: 样式细节调整
+- **Grid Layout**: `h-full` 确保卡片等高。
+- **Price**: 独立行，靠右对齐，不再与标题争抢空间。
+- **Typography**: Title `text-lg` (18px)，Price `text-sm` (14px) 但颜色醒目。
+- **Visuals**: 进度条增加可读性，Trend icon 增加动态感。
+- **Icons**: 引入 `Rocket`, `Zap`, `CheckCircle2` 等图标。
+
+### Step 4: 辅助函数 (API Integration)
+(保持不变)
+
+
+```typescript
+// 截断地址
+function truncateAddress(address: string): string {
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 }
+
+// Solscan 链接
+function getSolscanUrl(address: string): string {
+  return `https://solscan.io/account/${address}?cluster=devnet`;
+}
+```
+
+### Step 5: 页面级优化 (app/skills/page.tsx)
+
+**Filter Bar 样式增强**:
+- 未选中状态: `text-white/50` -> `text-white/70 font-medium` (提高亮度)
+- Hover 状态: `hover:bg-white/10 hover:text-white`
+- 选中状态: 保持 `bg-purple-500/20 text-purple-300` 但增加 `font-bold`
+
+```tsx
+// 优化后的 className 逻辑
+className={`px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition-all ${
+    selectedCategory === cat.id
+        ? "bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+        : "bg-white/5 border border-white/10 text-white/70 font-medium hover:bg-white/10 hover:text-white hover:border-white/20"
+}`}
+```
+
+## Constraints
+- 不破坏现有功能 (Copy Blink URL 必须正常工作)
+- 响应式设计：移动端隐藏部分指标
+- 性能：避免不必要的 re-render
+
+## Verification
+- **Unit**: `npx tsc --noEmit --skipLibCheck`
+- **Integration**: 
+  - 访问 `/skills` 页面
+  - 验证所有卡片显示新字段
+  - 点击创作者地址跳转 Solscan
+  - Copy Blink URL 功能正常
+- **Evidence**: 截图对比修改前后
+
+## Rollback
+- `git checkout -- exo-frontend/components/blinks/skill-blink-card.tsx`

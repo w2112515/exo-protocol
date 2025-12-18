@@ -10,6 +10,7 @@ import { KPICard } from "@/components/dashboard/kpi-card";
 import { useOrders } from "@/hooks/use-orders";
 import { useSkills } from "@/hooks/use-skills";
 import { calculateKPIs } from "@/lib/api";
+import { Header } from "@/components/layout/header";
 
 // ID 来自 anchor/programs/exo-core/src/lib.rs
 const EXO_PROGRAM_ID = "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT";
@@ -23,13 +24,15 @@ export default function DashboardPage() {
     const isError = ordersError || skillsError;
 
     return (
-        <main className="container mx-auto p-4 md:p-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold font-mono text-foreground mb-2">My Terminal</h1>
-                <p className="text-muted-foreground text-sm">Welcome back, Agent.</p>
-            </div>
+        <>
+            <Header />
+            <main className="container mx-auto p-4 md:p-8 pt-20">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold font-mono text-foreground mb-2">My Terminal</h1>
+                    <p className="text-muted-foreground text-sm">Welcome back, Agent.</p>
+                </div>
 
-            {isError ? (
+                {isError ? (
                 <div className="max-w-7xl mx-auto p-8">
                     <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 text-center">
                         <p className="text-red-400 font-mono">Failed to load data. Please try again later.</p>
@@ -60,6 +63,29 @@ export default function DashboardPage() {
                         valueClassName={isLoading ? "animate-pulse" : "text-success"}
                     />
 
+                    {/* 新增 KPI Row - PayFi 核心指标 */}
+                    <KPICard
+                        label="Total Royalties"
+                        value={kpis.totalRoyalties}
+                        precision={4}
+                        suffix=" SOL"
+                        className="col-span-1 md:col-span-2 lg:col-span-4"
+                        valueClassName={isLoading ? "animate-pulse" : "text-purple-400"}
+                    />
+                    <KPICard
+                        label="Success Rate"
+                        value={kpis.successRate}
+                        suffix="%"
+                        className="col-span-1 md:col-span-2 lg:col-span-4"
+                        valueClassName={isLoading ? "animate-pulse" : "text-success"}
+                    />
+                    <KPICard
+                        label="Unique Agents"
+                        value={kpis.uniqueAgents}
+                        className="col-span-1 md:col-span-2 lg:col-span-4"
+                        valueClassName={isLoading ? "animate-pulse" : "text-cyan-400"}
+                    />
+
                     {/* Main Split: Terminal Feed + Agent Flow Graph */}
                     <GlassCard className="col-span-1 md:col-span-3 lg:col-span-5 row-span-2 min-h-[500px]">
                         <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
@@ -84,10 +110,11 @@ export default function DashboardPage() {
                             <h3 className="text-sm font-medium">Agent Flow</h3>
                             <span className="text-xs text-muted-foreground font-mono">Settlement Distribution</span>
                         </div>
-                        <AgentFlowGraph className="h-[420px]" />
+                        <AgentFlowGraph className="h-[420px]" skills={skills} />
                     </GlassCard>
                 </BentoGrid>
             )}
-        </main>
+            </main>
+        </>
     );
 }

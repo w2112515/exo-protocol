@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ACTIONS_CORS_HEADERS } from '@/lib/api-utils';
+import { Skill } from '@/lib/mock-data';
 
 export const runtime = 'edge';
 
-interface MockSkill {
-    skill_id: string;
-    name: string;
-    version: string;
-    category: string;
-    price_lamports: number;
-    execution_count: number;
-    success_rate: number;
-}
+// 使用从 mock-data.ts 导入的 Skill 类型
+type MockSkill = Skill;
 
 export async function OPTIONS(request: NextRequest) {
     return new NextResponse(null, {
@@ -48,7 +42,7 @@ export async function GET(
 
     const title = skill ? skill.name : `Skill: ${skillId}`;
     const description = skill
-        ? `${skill.category} skill (v${skill.version}) | Success Rate: ${(skill.success_rate * 100).toFixed(1)}% | Price: ${skill.price_lamports / 1_000_000_000} SOL`
+        ? `${skill.description} | Success: ${(skill.success_rate * 100).toFixed(0)}% | Price: ${(skill.price_lamports / 1_000_000_000).toFixed(4)} SOL`
         : "Execute this skill directly from a Blink. Price: 0.1 SOL";
 
     const payload = {

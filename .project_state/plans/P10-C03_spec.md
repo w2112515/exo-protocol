@@ -1,3 +1,75 @@
+# P10-C03: 扩展 Skill 数据模型
+
+## Meta
+- **Type**: `Critical / Data Model`
+- **Risk Level**: 🔴 High (影响多个组件)
+- **depends_on**: P10-C01✅, P10-C02✅
+
+## Input Files
+- `exo-frontend/lib/mock-data.ts` (L14-22: Skill interface)
+- `exo-frontend/public/mock/mock_skills.json` (8 条记录)
+- `exo-frontend/app/api/actions/skill/[skillId]/route.ts` (Blink Metadata Handler)
+
+## External Dependencies
+| 资源 | 类型 | 状态 |
+|------|------|------|
+| 无外部依赖 | - | ✓ |
+
+## Action Steps
+
+### Step 1: 扩展 Skill Interface (`mock-data.ts`)
+
+将现有 Interface 扩展为：
+
+```typescript
+export interface Skill {
+  // === 基础字段 (已有) ===
+  skill_id: string;
+  name: string;
+  version: string;
+  category: string;
+  price_lamports: number;
+  execution_count: number;
+  success_rate: number;
+  
+  // === 新增: 描述与能力 ===
+  description: string;           // 1-2 句话描述技能能力
+  input_schema: string;          // 输入参数说明 (简化版)
+  output_format: string;         // 输出格式说明
+  
+  // === 新增: 性能指标 ===
+  avg_latency_ms: number;        // 平均响应时间 (毫秒)
+  
+  // === 新增: Exo 差异化 (链上可验证) ===
+  creator_address: string;       // 创作者 Solana 地址
+  royalty_rate: number;          // 版税比例 (0.10 = 10%)
+  total_royalties_earned: number;// 累计版税收入 (lamports)
+  on_chain_verified: boolean;    // 是否链上注册
+  
+  // === 新增: 元数据 ===
+  tags: string[];                // 细粒度标签
+  last_updated: string;          // ISO 时间戳
+}
+```
+
+### Step 2: 更新 isValidSkill 类型守卫
+
+在 `isValidSkill` 函数中添加新字段验证 (可选字段用 optional check)。
+
+### Step 3: 更新 Blink API Handler (`route.ts`)
+
+1. 同步更新 `route.ts` 中的 `MockSkill` 接口定义，建议直接导入：
+   `import { Skill } from '@/lib/mock-data';`
+2. 更新 `GET` 方法中的 `description` 生成逻辑：
+   - 优先使用 `skill.description`
+   - 保留原有的价格/成功率后缀信息
+   - 格式示例: `AI-powered code review... | Success: 88% | Price: 0.002 SOL`
+
+### Step 4: 更新 Mock 数据 (`mock_skills.json`)
+
+请直接使用以下完整的 JSON 数据覆盖原文件，确保所有字段齐全：
+
+```json
 [
   {
     "skill_id": "skill-code-reviewer-v1",
@@ -152,3 +224,18 @@
     "last_updated": "2025-12-17T09:45:00Z"
   }
 ]
+```
+
+## Constraints
+- 保持向后兼容：新字段不影响现有功能
+- creator_address 使用真实的 Devnet 地址 (已部署的)
+- royalty_rate 固定为 0.10 (10%)，与 Transfer Hook 逻辑一致
+- total_royalties_earned 基于 execution_count * price * royalty_rate 计算
+
+## Verification
+- **Unit**: `npx tsc --noEmit --skipLibCheck`
+- **Integration**: 访问 `/skills` 页面，数据加载正常
+- **Evidence**: 截图显示新字段已生效
+
+## Rollback
+- `git checkout -- exo-frontend/lib/mock-data.ts exo-frontend/public/mock/mock_skills.json`
