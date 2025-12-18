@@ -1,0 +1,85 @@
+{
+  "task_id": "Task-06A-v2",
+  "parent_task": "Task-06A",
+  "title": "使用 platform-tools v1.52 重新构建合约",
+  "priority": "HIGH",
+  "status": "QUEUED",
+  "created_by": "CSA",
+  "created_at": "2025-12-14T19:58:00+08:00",
+  "trigger": "ADR-006 决策 (platform-tools v1.42 rustc 版本不足)",
+  
+  "input": {
+    "current_state": {
+      "solana_cli": "2.0.21",
+      "platform_tools": "v1.42 (rustc 1.75.0-dev)",
+      "problem": "rustc 1.75.0-dev 与 toml_edit ^0.23.2 不兼容"
+    },
+    "target_state": {
+      "platform_tools": "v1.52 (预期 rustc 1.79+)",
+      "sdk_location": "E:\\Work\\BS\\hac\\hackathon\\exo-protocol\\.solana-sdk\\v1.52"
+    }
+  },
+  
+  "output": {
+    "required": [
+      "platform-tools v1.52 下载并解压",
+      "exo_core 合约编译成功",
+      "exo_hooks 合约编译成功"
+    ],
+    "artifacts": [
+      "anchor build 输出日志",
+      "生成的 .so 文件路径"
+    ]
+  },
+  
+  "verify": {
+    "type": "Unit",
+    "commands": [
+      {
+        "cmd": "cargo build-sbf --sbf-sdk <SDK_PATH> --manifest-path programs/exo-core/Cargo.toml",
+        "expect": "exit_code: 0"
+      },
+      {
+        "cmd": "cargo build-sbf --sbf-sdk <SDK_PATH> --manifest-path programs/exo-hooks/Cargo.toml",
+        "expect": "exit_code: 0"
+      }
+    ]
+  },
+  
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "下载 platform-tools v1.52",
+      "cmd": "Invoke-WebRequest -Uri 'https://github.com/anza-xyz/platform-tools/releases/download/v1.52/platform-tools-windows-x86_64.tar.bz2' -OutFile '.solana-sdk\\v1.52\\platform-tools.tar.bz2'"
+    },
+    {
+      "step": 2,
+      "action": "解压到项目目录",
+      "cmd": "tar -xjf .solana-sdk\\v1.52\\platform-tools.tar.bz2 -C .solana-sdk\\v1.52"
+    },
+    {
+      "step": 3,
+      "action": "修复 Cargo.lock 版本 (v4 -> v3)",
+      "note": "每次 cargo update 后需重新修复"
+    },
+    {
+      "step": 4,
+      "action": "构建 exo_core",
+      "cmd": "$env:HOME = $env:USERPROFILE; cargo build-sbf --sbf-sdk 'E:\\Work\\BS\\hac\\hackathon\\exo-protocol\\.solana-sdk\\v1.52' --manifest-path 'programs/exo-core/Cargo.toml'"
+    },
+    {
+      "step": 5,
+      "action": "构建 exo_hooks",
+      "cmd": "$env:HOME = $env:USERPROFILE; cargo build-sbf --sbf-sdk 'E:\\Work\\BS\\hac\\hackathon\\exo-protocol\\.solana-sdk\\v1.52' --manifest-path 'programs/exo-hooks/Cargo.toml'"
+    }
+  ],
+  
+  "fallback": {
+    "trigger": "platform-tools v1.52 仍然失败",
+    "action": "转 WSL2 方案 (ADR-006 Option B)"
+  },
+  
+  "external_dependencies": [],
+  
+  "note_to_wap": "这是 CSA 干预任务 (R2 触发)。关键点：1) 使用 v1.52 而非 v1.42；2) 使用 --sbf-sdk 参数指定路径；3) 每次 cargo update 后需修复 Cargo.lock 版本。如果 v1.52 仍失败，请报告具体错误信息，CSA 将决定是否转向 WSL2 方案。"
+}

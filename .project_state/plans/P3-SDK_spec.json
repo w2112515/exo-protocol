@@ -1,0 +1,173 @@
+{
+    "task_group": "P3-SDK",
+    "description": "TypeScript SDK (@exo/sdk) 封装链上交互",
+    "created_at": "2025-12-15T13:40:00+08:00",
+    "status": "DISPATCHED",
+    "subtasks": [
+        {
+            "id": "P3-SDK-01",
+            "title": "SDK 项目初始化",
+            "type": "Config",
+            "input_files": [],
+            "output_files": [
+                "exo-sdk/package.json [NEW]",
+                "exo-sdk/tsconfig.json [NEW]",
+                "exo-sdk/src/index.ts [NEW]"
+            ],
+            "action": [
+                "创建 exo-sdk/ 目录结构",
+                "配置 package.json (name: @exo/sdk, peerDeps)",
+                "配置 tsconfig.json (strict mode)",
+                "创建空的 index.ts 入口"
+            ],
+            "verify": {
+                "unit": "npm install && npm run build exit_code=0"
+            },
+            "ac": [
+                "AC-01: 项目结构正确创建",
+                "AC-02: TypeScript 编译通过"
+            ]
+        },
+        {
+            "id": "P3-SDK-02",
+            "title": "类型定义与常量",
+            "type": "Logic",
+            "input_files": [
+                "anchor/programs/exo-core/src/state/*.rs (参考)"
+            ],
+            "output_files": [
+                "exo-sdk/src/types/index.ts [NEW]",
+                "exo-sdk/src/types/skill.ts [NEW]",
+                "exo-sdk/src/types/agent.ts [NEW]",
+                "exo-sdk/src/types/escrow.ts [NEW]",
+                "exo-sdk/src/types/enums.ts [NEW]",
+                "exo-sdk/src/constants.ts [NEW]"
+            ],
+            "action": [
+                "定义 SkillAccount 接口",
+                "定义 AgentIdentity 接口",
+                "定义 EscrowAccount 和 ProtocolConfig 接口",
+                "定义 AuditStatus 和 EscrowStatus 枚举",
+                "定义 PROGRAM_ID 常量"
+            ],
+            "verify": {
+                "unit": "npm run build exit_code=0"
+            },
+            "ac": [
+                "AC-01: 类型定义与合约源码字段对应",
+                "AC-02: 编译无类型错误"
+            ],
+            "dependency": "P3-SDK-01"
+        },
+        {
+            "id": "P3-SDK-03",
+            "title": "PDA 工具与 Skill 客户端",
+            "type": "Logic",
+            "input_files": [
+                "exo-sdk/src/types/*.ts",
+                "exo-sdk/src/constants.ts"
+            ],
+            "output_files": [
+                "exo-sdk/src/pda.ts [NEW]",
+                "exo-sdk/src/instructions/skill.ts [NEW]"
+            ],
+            "action": [
+                "实现 findSkillPda, findAgentPda, findEscrowPda",
+                "实现 registerSkill, updateSkill, deprecateSkill 指令构建器",
+                "实现 fetchSkill 账户读取"
+            ],
+            "verify": {
+                "unit": "npm run build exit_code=0"
+            },
+            "ac": [
+                "AC-01: PDA 推导使用正确种子",
+                "AC-02: Skill 指令构建器完整"
+            ],
+            "dependency": "P3-SDK-02"
+        },
+        {
+            "id": "P3-SDK-04",
+            "title": "Agent 客户端",
+            "type": "Logic",
+            "input_files": [
+                "exo-sdk/src/pda.ts",
+                "exo-sdk/src/types/agent.ts"
+            ],
+            "output_files": [
+                "exo-sdk/src/instructions/agent.ts [NEW]"
+            ],
+            "action": [
+                "实现 createAgent 指令构建器",
+                "实现 upgradeTier 指令构建器",
+                "实现 updateReputation 指令构建器 (需 authority)",
+                "实现 fetchAgent 账户读取"
+            ],
+            "verify": {
+                "unit": "npm run build exit_code=0"
+            },
+            "ac": [
+                "AC-01: Agent 指令构建器完整"
+            ],
+            "dependency": "P3-SDK-02"
+        },
+        {
+            "id": "P3-SDK-05",
+            "title": "Escrow 客户端",
+            "type": "Logic",
+            "input_files": [
+                "exo-sdk/src/pda.ts",
+                "exo-sdk/src/types/escrow.ts"
+            ],
+            "output_files": [
+                "exo-sdk/src/instructions/escrow.ts [NEW]"
+            ],
+            "action": [
+                "实现 initProtocolConfig 指令构建器",
+                "实现 createEscrow 指令构建器",
+                "实现 completeEscrow 指令构建器",
+                "实现 cancelEscrow 指令构建器",
+                "实现 fetchEscrow, fetchProtocolConfig 账户读取"
+            ],
+            "verify": {
+                "unit": "npm run build exit_code=0"
+            },
+            "ac": [
+                "AC-01: Escrow 指令构建器完整"
+            ],
+            "dependency": "P3-SDK-02"
+        },
+        {
+            "id": "P3-SDK-06",
+            "title": "ExoClient 封装与验证",
+            "type": "Integration",
+            "input_files": [
+                "exo-sdk/src/instructions/*.ts",
+                "exo-sdk/src/pda.ts"
+            ],
+            "output_files": [
+                "exo-sdk/src/client.ts [MODIFY]",
+                "exo-sdk/src/index.ts [MODIFY]"
+            ],
+            "action": [
+                "创建 ExoClient 类封装所有方法",
+                "导出所有公共 API 到 index.ts",
+                "编写 PDA 推导单元测试",
+                "验证 npm run build 和 npm run test"
+            ],
+            "verify": {
+                "unit": "npm run build && npm run test exit_code=0",
+                "browser": "在 exo-frontend 中导入 SDK 验证类型推断"
+            },
+            "ac": [
+                "AC-01: ExoClient 封装所有指令",
+                "AC-02: npm run build 通过",
+                "AC-03: SDK 可被 exo-frontend 导入"
+            ],
+            "dependency": [
+                "P3-SDK-03",
+                "P3-SDK-04",
+                "P3-SDK-05"
+            ]
+        }
+    ]
+}

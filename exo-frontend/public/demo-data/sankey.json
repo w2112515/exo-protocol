@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "id": "client",
+      "name": "用户 (Client)",
+      "type": "source"
+    },
+    {
+      "id": "escrow",
+      "name": "Escrow 托管",
+      "type": "intermediate"
+    },
+    {
+      "id": "executor",
+      "name": "Executor (85%)",
+      "type": "sink"
+    },
+    {
+      "id": "creator",
+      "name": "Creator 版税 (10%)",
+      "type": "sink"
+    },
+    {
+      "id": "protocol",
+      "name": "Protocol 费用 (5%)",
+      "type": "sink"
+    }
+  ],
+  "links": [
+    {
+      "source": "client",
+      "target": "escrow",
+      "value": 310000000
+    },
+    {
+      "source": "escrow",
+      "target": "executor",
+      "value": 263500000
+    },
+    {
+      "source": "escrow",
+      "target": "creator",
+      "value": 31000000
+    },
+    {
+      "source": "escrow",
+      "target": "protocol",
+      "value": 15500000
+    }
+  ],
+  "summary": {
+    "totalVolume": 310000000,
+    "totalTasks": 4,
+    "avgTaskValue": 77500000
+  }
+}

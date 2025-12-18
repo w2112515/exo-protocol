@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-12-18T04:51:55.680Z",
+  "files": [
+    "tasks.json",
+    "sankey.json",
+    "logs.json"
+  ],
+  "summary": {
+    "totalTasks": 4,
+    "totalLogs": 8,
+    "totalVolume": "0.31 SOL"
+  }
+}

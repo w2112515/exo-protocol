@@ -1,0 +1,65 @@
+{
+    "task_id": "P3-SDK-04",
+    "status": "success",
+    "execution_mode": "Serial-Batching",
+    "timestamp": "2025-12-15T14:08:00+08:00",
+    "modified_files": [
+        "exo-sdk/src/instructions/agent.ts",
+        "exo-sdk/src/index.ts"
+    ],
+    "verification": {
+        "unit": {
+            "command": "cd exo-sdk && pnpm run typecheck",
+            "exit_code": 0,
+            "output_snippet": "> @exo/sdk@0.1.0 typecheck\n> tsc --noEmit\n(no errors)"
+        },
+        "build": {
+            "command": "cd exo-sdk && pnpm run build",
+            "exit_code": 0,
+            "output_snippet": "> @exo/sdk@0.1.0 build\nDTS dist/index.d.mts"
+        }
+    },
+    "deliverables": {
+        "new_files": [
+            {
+                "path": "exo-sdk/src/instructions/agent.ts",
+                "exports": [
+                    "CreateIdentityArgs (interface)",
+                    "UpdateProfileArgs (interface)",
+                    "CreateIdentityAccounts (interface)",
+                    "ModifyIdentityAccounts (interface)",
+                    "createIdentity (function)",
+                    "updateProfile (function)",
+                    "closeIdentity (function)",
+                    "AgentInstructionBuilder (class)"
+                ]
+            }
+        ],
+        "modified_files": [
+            {
+                "path": "exo-sdk/src/index.ts",
+                "changes": "Added export for './instructions/agent'"
+            }
+        ]
+    },
+    "acceptance_criteria": {
+        "AC-01": {
+            "description": "Agent 指令文件存在",
+            "status": "PASS",
+            "evidence": "exo-sdk/src/instructions/agent.ts created (271 lines)"
+        },
+        "AC-02": {
+            "description": "TypeScript 编译通过",
+            "status": "PASS",
+            "evidence": "pnpm run typecheck exit_code=0"
+        }
+    },
+    "diagnostics_log": [
+        {
+            "trigger": "Lint warning: BN import unused",
+            "action": "Removed unused BN import from agent.ts",
+            "result": "Resolved"
+        }
+    ],
+    "note_to_csa": "Agent 指令构建器模式参考 skill.ts 实现，包含 createIdentity/updateProfile/closeIdentity 三个核心函数和 AgentInstructionBuilder 便捷类。discriminator 使用占位符，待 IDL 部署后更新。"
+}

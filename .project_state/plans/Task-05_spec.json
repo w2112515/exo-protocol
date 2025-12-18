@@ -1,0 +1,128 @@
+{
+  "task_id": "Task-05",
+  "title": "Escrow Settlement 合约",
+  "priority": "P0",
+  "status": "READY",
+  "created_at": "2025-12-14T03:30:00+08:00",
+
+  "description": "实现 Skill 调用的托管结算机制。买家支付 SOL 到 Escrow PDA，任务完成后自动分账到 Skill 创作者和执行 Agent。",
+
+  "input": {
+    "dependencies": [
+      "Task-03: SkillAccount 结构体 (price_lamports, authority)",
+      "Task-04: AgentIdentity 结构体 (total_earnings, total_tasks)"
+    ],
+    "reference_files": [
+      "anchor/programs/exo-core/src/state/skill.rs",
+      "anchor/programs/exo-core/src/state/agent.rs",
+      "docs/SKILL_SCHEMA.md"
+    ],
+    "constraints": [
+      "ADR-004: borsh 锁定 v1.2.1，新依赖需检查 MSRV",
+      "分账比例: 5% 协议费 + 10% Skill 版税 + 85% 执行者",
+      "暂不实现 Transfer Hook (Task-06 单独处理)"
+    ]
+  },
+
+  "output": {
+    "files": [
+      {
+        "path": "anchor/programs/exo-core/src/state/escrow.rs",
+        "description": "EscrowAccount 账户结构体 + ProtocolConfig 账户"
+      },
+      {
+        "path": "anchor/programs/exo-core/src/instructions/escrow.rs",
+        "description": "4 个指令: init_protocol_config, create_escrow, complete_escrow, cancel_escrow"
+      },
+      {
+        "path": "anchor/programs/exo-core/src/state/mod.rs",
+        "description": "更新导出 escrow 模块"
+      },
+      {
+        "path": "anchor/programs/exo-core/src/instructions/mod.rs",
+        "description": "更新导出 escrow 指令"
+      },
+      {
+        "path": "anchor/programs/exo-core/src/lib.rs",
+        "description": "注册 4 个指令入口"
+      }
+    ],
+    "accounts": {
+      "ProtocolConfig": {
+        "pda_seeds": ["protocol_config"],
+        "fields": [
+          "authority: Pubkey (协议管理员，可更新信誉分)",
+          "fee_basis_points: u16 (协议费率，默认 500 = 5%)",
+          "treasury: Pubkey (协议费接收地址)",
+          "bump: u8"
+        ]
+      },
+      "EscrowAccount": {
+        "pda_seeds": ["escrow", buyer, skill_pda, nonce],
+        "fields": [
+          "buyer: Pubkey",
+          "skill: Pubkey (SkillAccount PDA)",
+          "executor: Option<Pubkey> (执行 Agent)",
+          "amount: u64 (托管金额 lamports)",
+          "status: EscrowStatus (Pending/InProgress/Completed/Cancelled/Disputed)",
+          "created_at: i64",
+          "expires_at: i64 (超时自动取消)",
+          "nonce: u64 (防重放)",
+          "bump: u8"
+        ]
+      }
+    },
+    "instructions": {
+      "init_protocol_config": {
+        "description": "初始化协议配置 (仅执行一次)",
+        "authority": "部署者/管理员",
+        "params": ["fee_basis_points: u16", "treasury: Pubkey"]
+      },
+      "create_escrow": {
+        "description": "买家创建托管，支付 skill.price_lamports 到 Escrow PDA",
+        "authority": "buyer (任何人)",
+        "params": ["nonce: u64"],
+        "transfers": "buyer → escrow_pda (skill.price_lamports)"
+      },
+      "complete_escrow": {
+        "description": "执行 Agent 完成任务后触发分账",
+        "authority": "buyer 签名确认",
+        "distribution": {
+          "protocol_treasury": "5%",
+          "skill_authority": "10%",
+          "executor_agent": "85%"
+        },
+        "side_effects": [
+          "AgentIdentity.total_earnings += 85%",
+          "AgentIdentity.total_tasks += 1",
+          "SkillAccount.total_calls += 1",
+          "SkillAccount.total_revenue += 10%"
+        ]
+      },
+      "cancel_escrow": {
+        "description": "取消托管，退款给 buyer",
+        "authority": "buyer (仅 Pending 状态可取消)",
+        "transfers": "escrow_pda → buyer (全额退款)"
+      }
+    }
+  },
+
+  "verify": {
+    "type": "Unit",
+    "command": "cargo build-sbf --manifest-path programs/exo-core/Cargo.toml",
+    "success_criteria": "exit_code == 0",
+    "evidence_required": [
+      "构建日志截图/输出",
+      "target/deploy/exo_core.so 存在"
+    ]
+  },
+
+  "external_dependencies": [],
+
+  "notes": [
+    "ProtocolConfig.authority 用于后续 update_reputation 调用的权限校验",
+    "EscrowStatus::Disputed 预留给 Phase 2 的挑战机制",
+    "expires_at 暂不实现自动退款，仅记录 (Phase 2 加入 Clockwork)",
+    "分账逻辑使用 checked_div/checked_mul 防止溢出"
+  ]
+}

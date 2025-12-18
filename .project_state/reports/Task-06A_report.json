@@ -1,0 +1,109 @@
+{
+  "task_id": "Task-06A",
+  "parent_task": "Task-06",
+  "title": "升级 Solana CLI 到 2.0.x 并验证兼容性",
+  "status": "blocked",
+  "execution_mode": "Serial-Batching",
+  "timestamp": "2025-12-14T18:48:00+08:00",
+  "created_files": [],
+  "modified_files": [
+    "C:\\solana\\bin\\* (Solana CLI 2.0.21 files copied)"
+  ],
+  "deliverables": {
+    "solana_cli_upgrade": {
+      "status": "success",
+      "from_version": "1.18.26",
+      "to_version": "2.0.21",
+      "method": "Manual download from release.anza.xyz + copy to C:\\solana\\bin",
+      "evidence": "solana --version -> solana-cli 2.0.21 (src:843c6a1a; feat:607245837, client:Agave)"
+    },
+    "platform_tools_install": {
+      "status": "blocked",
+      "version": "v1.42",
+      "downloaded": true,
+      "extracted": true,
+      "location": "C:\\Users\\nate\\.cache\\solana\\v1.42",
+      "blocking_error": "cargo-build-sbf requires admin privileges to finalize installation"
+    },
+    "exo_core_build": {
+      "status": "blocked",
+      "command": "anchor build -p exo_core",
+      "exit_code": 1
+    },
+    "exo_hooks_build": {
+      "status": "not_attempted",
+      "reason": "Blocked by exo_core build failure"
+    }
+  },
+  "verification": {
+    "type": "Unit",
+    "commands": [
+      {
+        "cmd": "solana --version",
+        "exit_code": 0,
+        "output": "solana-cli 2.0.21 (src:843c6a1a; feat:607245837, client:Agave)"
+      },
+      {
+        "cmd": "anchor build -p exo_core",
+        "exit_code": 1,
+        "output": "Failed to install platform-tools: 客户端没有所需的特权。 (os error 1314)"
+      }
+    ]
+  },
+  "diagnostics_log": [
+    {
+      "trigger": "solana-install init 2.0.21 failed with GitHub API rate limit",
+      "action": "Manual download from release.anza.xyz using Invoke-WebRequest",
+      "result": "Resolved - Solana CLI 2.0.21 installed successfully"
+    },
+    {
+      "trigger": "anchor build failed - platform-tools download timeout",
+      "action": "Manual download platform-tools v1.42 using Invoke-WebRequest",
+      "result": "Downloaded and extracted to ~/.cache/solana/v1.42"
+    },
+    {
+      "trigger": "anchor build failed - OS Error 5 (拒绝访问)",
+      "action": "Cleared cache, re-downloaded platform-tools",
+      "result": "Same error persisted"
+    },
+    {
+      "trigger": "anchor build failed - OS Error 1314 (客户端没有所需的特权)",
+      "action": "WAP R3 triggered: 超过 2 次重试上限",
+      "result": "Marked BLOCKED, requires CSA intervention"
+    }
+  ],
+  "blocking_issue": {
+    "type": "PermissionDenied",
+    "error_code": "OS Error 1314",
+    "description": "cargo-build-sbf requires elevated (Administrator) privileges to install/update platform-tools on Windows",
+    "root_cause": "Windows UAC prevents non-admin processes from modifying certain directories or creating symlinks",
+    "affected_command": "anchor build -p exo_core"
+  },
+  "recommended_solutions": [
+    {
+      "option": "A",
+      "action": "用户以管理员身份打开 PowerShell/Terminal，手动运行 anchor build -p exo_core",
+      "risk": "无",
+      "effort": "LOW"
+    },
+    {
+      "option": "B",
+      "action": "使用 WSL2 环境构建 (Linux 无 UAC 限制)",
+      "risk": "需要配置 WSL2 + Solana/Anchor",
+      "effort": "MEDIUM"
+    },
+    {
+      "option": "C",
+      "action": "使用 Docker 容器构建环境",
+      "risk": "需要配置 Docker 构建流程",
+      "effort": "MEDIUM"
+    }
+  ],
+  "checkpoint": {
+    "step": 4,
+    "total_steps": 5,
+    "last_completed": "Solana CLI upgraded to 2.0.21",
+    "next_step": "Run anchor build as Administrator"
+  },
+  "note_to_csa": "Solana CLI 已成功升级到 2.0.21，但 anchor build 在安装 platform-tools 时遇到 Windows 权限限制 (OS Error 1314)。建议用户以管理员身份运行 PowerShell 后执行 'anchor build -p exo_core' 和 'anchor build -p exo_hooks'。这是 Windows 特有的 UAC 限制问题，非代码或工具链兼容性问题。"
+}

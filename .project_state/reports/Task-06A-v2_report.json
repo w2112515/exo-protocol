@@ -1,0 +1,80 @@
+{
+  "task_id": "Task-06A-v2",
+  "executor": "WAP",
+  "timestamp": "2025-12-14T20:08:00+08:00",
+  "status": "FAILED",
+  
+  "execution_log": [
+    {
+      "step": 1,
+      "action": "创建 .solana-sdk/v1.52 目录",
+      "result": "SUCCESS"
+    },
+    {
+      "step": 2,
+      "action": "下载 platform-tools v1.52",
+      "result": "SUCCESS",
+      "evidence": "platform-tools.tar.bz2 (568MB)"
+    },
+    {
+      "step": 3,
+      "action": "解压到 .solana-sdk/v1.52",
+      "result": "SUCCESS",
+      "evidence": "llvm/, rust/, version.md 已解压"
+    },
+    {
+      "step": 4,
+      "action": "验证 Cargo.lock",
+      "result": "SUCCESS",
+      "evidence": "version = 3 (无需修复)"
+    },
+    {
+      "step": 5,
+      "action": "构建 exo-core (cargo build-sbf --sbf-sdk)",
+      "result": "FAILED",
+      "error": "rustc 版本不足"
+    }
+  ],
+  
+  "root_cause_analysis": {
+    "finding": "platform-tools v1.52 Windows 版本仍然打包 rustc 1.75.0-dev",
+    "evidence": "error: package `toml_edit v0.23.9` cannot be built because it requires rustc 1.76 or newer, while the currently active rustc version is 1.75.0-dev",
+    "conclusion": "Anza 的 Windows platform-tools 发布版本未更新 rustc，v1.42 和 v1.52 均为 1.75.0-dev"
+  },
+  
+  "dependency_conflict": {
+    "package": "toml_edit",
+    "required_version": "0.23.9",
+    "requires_rustc": "1.76+",
+    "available_rustc": "1.75.0-dev",
+    "gap": "需要 rustc 1.76+，当前 1.75.0-dev"
+  },
+  
+  "fallback_recommendation": {
+    "trigger": "platform-tools v1.52 Windows 版本 rustc 版本不足",
+    "recommended_action": "ADR-006 Option B: 转 WSL2/Docker 构建方案",
+    "alternatives": [
+      {
+        "option": "A",
+        "description": "使用 cargo update toml_edit@0.23.9 --precise <older_version> 降级依赖",
+        "risk": "可能引入兼容性问题"
+      },
+      {
+        "option": "B",
+        "description": "WSL2 + Linux platform-tools (通常有更新的 rustc)",
+        "risk": "需要配置 WSL2 环境"
+      },
+      {
+        "option": "C",
+        "description": "Docker 容器构建 (官方 Solana builder 镜像)",
+        "risk": "需要 Docker Desktop"
+      }
+    ]
+  },
+  
+  "evidence_files": [],
+  "artifacts": {
+    "sdk_location": "E:\\Work\\BS\\hac\\hackathon\\exo-protocol\\.solana-sdk\\v1.52",
+    "sdk_size": "568MB"
+  }
+}

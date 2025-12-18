@@ -1,0 +1,122 @@
+{
+    "task_id": "P3-BLINKS",
+    "title": "Solana Blinks API for Skill Marketplace",
+    "description": "实现 Solana Actions (Blinks) API，允许用户通过社交媒体链接直接预览和购买 Skill",
+    "priority": "P1",
+    "estimated_subtasks": 4,
+    "external_dependencies": [],
+    "design_reference": ".project_state/plans/P3-FRONTEND-DESIGN.md",
+    "subtasks": [
+        {
+            "id": "P3-BLINKS-01",
+            "title": "Blinks Actions 路由配置",
+            "type": "Config",
+            "input_files": [
+                "exo-frontend/app/api/actions/route.ts"
+            ],
+            "action": [
+                "创建 exo-frontend/app/api/actions/ 目录结构",
+                "创建 actions.json 配置文件",
+                "创建 route.ts 返回 Solana Actions 元数据",
+                "配置 CORS 和 Content-Type 响应头"
+            ],
+            "verify": {
+                "unit": "GET /api/actions 返回有效 JSON 元数据",
+                "build": "npm run build 成功"
+            },
+            "acceptance_criteria": [
+                "AC-01: /api/actions 端点返回 200 状态码",
+                "AC-02: 响应包含 rules 数组符合 Solana Actions 规范",
+                "AC-03: CORS headers 正确配置 (Access-Control-Allow-Origin: *)"
+            ]
+        },
+        {
+            "id": "P3-BLINKS-02",
+            "title": "Skill Preview Blink 端点",
+            "type": "Logic",
+            "input_files": [
+                "exo-frontend/app/api/actions/skill/[skillId]/route.ts"
+            ],
+            "action": [
+                "创建动态路由 /api/actions/skill/[skillId]",
+                "实现 GET 处理器返回 Skill 预览 ActionGetResponse",
+                "实现 POST 处理器构建购买交易 ActionPostResponse",
+                "集成 Mock 数据层获取 Skill 信息"
+            ],
+            "verify": {
+                "unit": "GET /api/actions/skill/mock-skill-1 返回 ActionGetResponse",
+                "integration": "POST 返回有效的 Solana 交易 base64"
+            },
+            "acceptance_criteria": [
+                "AC-01: GET 返回 icon, title, description, label 字段",
+                "AC-02: POST 接收 account 参数并构建交易",
+                "AC-03: 交易包含正确的 Skill Registry 程序调用"
+            ],
+            "dependencies": [
+                "P3-BLINKS-01"
+            ]
+        },
+        {
+            "id": "P3-BLINKS-03",
+            "title": "Blinks UI 卡片组件",
+            "type": "UI",
+            "input_files": [
+                "exo-frontend/components/blinks/skill-blink-card.tsx"
+            ],
+            "action": [
+                "创建 SkillBlinkCard 组件",
+                "复用 GlassCard 样式",
+                "显示 Skill 图标、标题、描述",
+                "添加购买按钮和价格显示",
+                "实现 Blink URL 复制功能"
+            ],
+            "verify": {
+                "unit": "组件正确渲染 Skill 信息",
+                "build": "npm run build 成功"
+            },
+            "acceptance_criteria": [
+                "AC-01: 卡片符合 Terminal Minimalism 设计规范",
+                "AC-02: 一键复制 Blink URL 到剪贴板",
+                "AC-03: 响应式布局适配移动端"
+            ],
+            "dependencies": [
+                "P3-BLINKS-01"
+            ]
+        },
+        {
+            "id": "P3-BLINKS-04",
+            "title": "集成验证",
+            "type": "Integration",
+            "input_files": [
+                "exo-frontend/app/dashboard/page.tsx",
+                "exo-frontend/app/api/actions/"
+            ],
+            "action": [
+                "在 Dashboard 页面集成 SkillBlinkCard",
+                "测试完整 Blinks 流程",
+                "验证 API 响应格式符合 Solana Actions 规范"
+            ],
+            "verify": {
+                "build": "npm run build 成功",
+                "manual": [
+                    "Blinks API 返回正确格式",
+                    "SkillBlinkCard 显示在 Dashboard"
+                ]
+            },
+            "acceptance_criteria": [
+                "AC-01: npm run build exit_code=0",
+                "AC-02: GET /api/actions/skill/[id] 返回有效 JSON",
+                "AC-03: Dashboard 显示 Blink 卡片"
+            ],
+            "dependencies": [
+                "P3-BLINKS-02",
+                "P3-BLINKS-03"
+            ]
+        }
+    ],
+    "gate_criteria": {
+        "build": "npm run build 成功",
+        "api": "Blinks 端点响应符合 Solana Actions 规范",
+        "ui": "SkillBlinkCard 集成到 Dashboard"
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "name": "@exo/sdk",
+    "version": "0.1.0",
+    "description": "TypeScript SDK for Exo Protocol - Skill-Native PayFi for Agent Economy",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "src"
+    ],
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+        "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+        "lint": "eslint src --ext .ts",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "demo": "cd .. && npx tsx scripts/run-demo.ts",
+        "demo:dry": "cd .. && npx tsx scripts/run-demo.ts --dry-run"
+    },
+    "keywords": [
+        "solana",
+        "anchor",
+        "exo-protocol",
+        "agent",
+        "skill",
+        "payfi"
+    ],
+    "author": "Exo Protocol Team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/exo-protocol/exo-sdk"
+    },
+    "peerDependencies": {
+        "@coral-xyz/anchor": "^0.30.0",
+        "@solana/web3.js": "^1.91.0"
+    },
+    "devDependencies": {
+        "@coral-xyz/anchor": "^0.30.1",
+        "@solana/web3.js": "^1.95.0",
+        "@types/bn.js": "^5.2.0",
+        "@types/node": "^22.10.1",
+        "ts-node": "^10.9.2",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "tsx": "^4.19.0",
+        "vitest": "^2.1.8"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {
+        "bn.js": "^5.2.2"
+    }
+}

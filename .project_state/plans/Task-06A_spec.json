@@ -1,0 +1,91 @@
+{
+  "task_id": "Task-06A",
+  "parent_task": "Task-06",
+  "title": "升级 Solana CLI 到 2.0.x 并验证兼容性",
+  "priority": "HIGH",
+  "status": "QUEUED",
+  "created_by": "CSA",
+  "created_at": "2025-12-14T18:10:00+08:00",
+  "trigger": "ADR-005 决策 (Task-06 编译阻塞)",
+  
+  "input": {
+    "current_state": {
+      "solana_cli": "1.18.26",
+      "rustc": "1.75.0-dev (bundled with solana)",
+      "anchor": "0.30.1"
+    },
+    "target_state": {
+      "solana_cli": "2.0.x (latest stable)",
+      "rustc": "1.79+ (bundled with solana 2.0)"
+    },
+    "reference_docs": [
+      "https://docs.solana.com/cli/install"
+    ]
+  },
+  
+  "output": {
+    "required": [
+      "Solana CLI 升级到 2.0.x",
+      "验证 exo-core 合约编译成功",
+      "验证 exo-hooks 合约编译成功"
+    ],
+    "artifacts": [
+      "solana --version 输出截图/日志",
+      "anchor build 输出日志"
+    ]
+  },
+  
+  "verify": {
+    "type": "Unit",
+    "commands": [
+      {
+        "cmd": "solana --version",
+        "expect": "solana-cli 2.0.x"
+      },
+      {
+        "cmd": "anchor build -p exo_core",
+        "expect": "exit_code: 0"
+      },
+      {
+        "cmd": "anchor build -p exo_hooks", 
+        "expect": "exit_code: 0"
+      }
+    ]
+  },
+  
+  "execution_steps": [
+    {
+      "step": 1,
+      "action": "执行 solana-install init 2.0.21",
+      "note": "或使用 solana-install update 到最新 2.0.x"
+    },
+    {
+      "step": 2,
+      "action": "验证 solana --version 输出为 2.0.x"
+    },
+    {
+      "step": 3,
+      "action": "删除旧的 Cargo.lock 和 target 目录",
+      "cmd": "rm -rf anchor/Cargo.lock anchor/target"
+    },
+    {
+      "step": 4,
+      "action": "重新构建 exo-core",
+      "cmd": "anchor build -p exo_core"
+    },
+    {
+      "step": 5,
+      "action": "重新构建 exo-hooks",
+      "cmd": "anchor build -p exo_hooks"
+    }
+  ],
+  
+  "rollback": {
+    "trigger": "exo-core 编译失败",
+    "action": "solana-install init 1.18.26 回退，报告 CSA 需 Docker 方案"
+  },
+  
+  "external_dependencies": [],
+  
+  "note_to_wap": "这是 CSA 干预任务。升级后务必先验证 exo-core 兼容性，再验证 exo-hooks。如果 exo-core 失败，立即回退并报告。"
+}

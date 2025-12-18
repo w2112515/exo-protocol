@@ -1,0 +1,23 @@
+# Exo Protocol SRE Runtime Dependencies
+
+# Solana
+solana==0.32.0
+anchorpy==0.19.1
+
+# Docker
+docker==7.0.0
+
+# Async
+aiohttp==3.9.1
+asyncio==3.4.3
+
+# Utils
+python-dotenv==1.0.0
+pydantic==2.5.0
+
+# Arweave (via Irys)
+# irys-sdk==0.1.0  # Install separately
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1

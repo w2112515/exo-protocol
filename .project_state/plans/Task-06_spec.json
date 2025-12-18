@@ -1,0 +1,97 @@
+{
+  "task_id": "Task-06",
+  "title": "Token-2022 Transfer Hook 合约",
+  "status": "DISPATCHED",
+  "priority": "HIGH",
+  "type": "Contract / OPOS",
+  "dependency": "Task-05 (Escrow Settlement)",
+  "external_dependencies": [],
+  "dispatched_at": "2025-12-14T16:58:00+08:00",
+
+  "context": {
+    "summary": "实现 Token-2022 Transfer Hook，在代币转账/结算时自动触发分账逻辑。这是 OPOS 得分的核心技术点。",
+    "reference_doc": "docs/mvp v2.0.md §3.2.4",
+    "target_file": "anchor/programs/exo-hooks/src/lib.rs",
+    "related_files": [
+      "anchor/programs/exo-core/src/state/escrow.rs",
+      "anchor/programs/exo-core/src/instructions/escrow.rs"
+    ]
+  },
+
+  "input": {
+    "description": "扩展 exo-hooks placeholder，实现完整的 Token-2022 Transfer Hook 合约",
+    "current_state": "exo-hooks 目录已存在，lib.rs 仅有 placeholder TODO 注释"
+  },
+
+  "output": {
+    "file_structure": [
+      "anchor/programs/exo-hooks/src/lib.rs (主合约)",
+      "anchor/programs/exo-hooks/src/state/mod.rs (状态定义)",
+      "anchor/programs/exo-hooks/src/instructions/mod.rs (指令模块)",
+      "anchor/programs/exo-hooks/Cargo.toml (依赖更新)"
+    ],
+    "accounts": {
+      "HookConfig": {
+        "pda_seeds": ["hook_config", "mint"],
+        "fields": [
+          "authority: Pubkey",
+          "mint: Pubkey",
+          "protocol_treasury: Pubkey",
+          "protocol_fee_bps: u16 (默认 500 = 5%)",
+          "creator_royalty_bps: u16 (默认 1000 = 10%)",
+          "bump: u8"
+        ]
+      }
+    },
+    "instructions": {
+      "initialize_hook": {
+        "description": "初始化 Transfer Hook 配置",
+        "params": ["mint: Pubkey", "protocol_fee_bps: u16", "creator_royalty_bps: u16"],
+        "authority": "协议管理员"
+      },
+      "transfer_hook": {
+        "description": "Token-2022 自动调用的 Hook 入口 (spl-transfer-hook-interface)",
+        "params": ["amount: u64"],
+        "logic": [
+          "1. 检查是否为 Escrow 结算转账 (通过 ExtraAccountMeta)",
+          "2. 计算分账: protocol_fee = amount * 5%",
+          "3. 计算分账: creator_royalty = amount * 10%", 
+          "4. 计算分账: executor_amount = amount * 85%",
+          "5. 执行分账转账 (CPI to SPL Token)"
+        ]
+      },
+      "fallback": {
+        "description": "SPL Transfer Hook Interface 要求的 fallback 指令",
+        "params": []
+      }
+    }
+  },
+
+  "constraints": [
+    "必须实现 spl-transfer-hook-interface (SPL Transfer Hook 标准)",
+    "使用 checked_mul/checked_div 防止溢出",
+    "分账比例: 5% 协议费 + 10% 创作者版税 + 85% 执行者",
+    "MVP 阶段: 简化实现，先支持 SOL native 分账逻辑验证"
+  ],
+
+  "verify": {
+    "unit": [
+      "cargo build-sbf --manifest-path programs/exo-hooks/Cargo.toml (exit code 0)",
+      "生成 IDL 文件 target/idl/exo_hooks.json",
+      "合约包含指令: initialize_hook, transfer_hook, fallback"
+    ],
+    "evidence_required": [
+      "编译成功日志截图/输出",
+      "IDL 文件内容摘要"
+    ]
+  },
+
+  "implementation_hints": [
+    "参考 SPL Transfer Hook 示例: https://github.com/solana-labs/solana-program-library/tree/master/token/transfer-hook",
+    "Cargo.toml 需添加依赖: spl-transfer-hook-interface, spl-tlv-account-resolution, anchor-spl",
+    "MVP 简化: 先实现 Hook 结构和接口，分账逻辑可使用模拟账户测试",
+    "注意: Transfer Hook 的 ExtraAccountMeta 配置复杂，建议分步实现"
+  ],
+
+  "csa_notes": "Task-06 是 OPOS 核心得分点。完成后解锁 Task-07 (单元测试)。"
+}

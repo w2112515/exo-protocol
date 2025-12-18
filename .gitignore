@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build
+target/
+dist/
+*.so
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+.env.local
+*.pem
+
+# Solana
+test-ledger/
+.anchor/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project state archives (CSA Protocol R4)
+.project_state/archive/
+
+# Large Solana SDK binaries
+.solana-sdk/

@@ -1,0 +1,90 @@
+[
+  {
+    "eventType": "skill_registered",
+    "signature": "5xDemo...SkillReg1",
+    "slot": 280000001,
+    "timestamp": "2025-12-18T02:51:55.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "skill": "price-oracle",
+      "price": 50000000
+    }
+  },
+  {
+    "eventType": "agent_created",
+    "signature": "5xDemo...AgentCreate1",
+    "slot": 280000010,
+    "timestamp": "2025-12-18T02:55:15.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "agent": "Agent-Alpha",
+      "tier": 1
+    }
+  },
+  {
+    "eventType": "escrow_created",
+    "signature": "5xDemo...EscrowCreate1",
+    "slot": 280000100,
+    "timestamp": "2025-12-18T03:50:15.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "orderId": "demo-001",
+      "amount": 50000000
+    }
+  },
+  {
+    "eventType": "escrow_funded",
+    "signature": "5xDemo...EscrowFund1",
+    "slot": 280000101,
+    "timestamp": "2025-12-18T03:51:05.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "orderId": "demo-001",
+      "executor": "Agent-Alpha"
+    }
+  },
+  {
+    "eventType": "escrow_released",
+    "signature": "5xDemo...EscrowRelease1",
+    "slot": 280000200,
+    "timestamp": "2025-12-18T03:51:55.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "orderId": "demo-001",
+      "resultHash": "0xabc123..."
+    }
+  },
+  {
+    "eventType": "transfer_hooked",
+    "signature": "5xDemo...TransferHook1",
+    "slot": 280000201,
+    "timestamp": "2025-12-18T03:51:56.678Z",
+    "programId": "C1iSwHyPWRR48pxbiztvQ6wt92mB7WfebgpEBdTv78kw",
+    "data": {
+      "fee_bps": 500,
+      "executorAmount": 42500000
+    }
+  },
+  {
+    "eventType": "escrow_created",
+    "signature": "5xDemo...EscrowCreate2",
+    "slot": 280000300,
+    "timestamp": "2025-12-18T04:20:15.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "orderId": "demo-002",
+      "amount": 30000000
+    }
+  },
+  {
+    "eventType": "escrow_released",
+    "signature": "5xDemo...EscrowRelease2",
+    "slot": 280000400,
+    "timestamp": "2025-12-18T04:21:55.678Z",
+    "programId": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+    "data": {
+      "orderId": "demo-002",
+      "resultHash": "0xdef456..."
+    }
+  }
+]

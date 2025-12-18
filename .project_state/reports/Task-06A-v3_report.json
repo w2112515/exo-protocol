@@ -1,0 +1,38 @@
+{
+  "task_id": "Task-06A-v3",
+  "status": "failed",
+  "audit_result": "rejected_with_intervention",
+  "intervention_type": "decompose",
+  "timestamp": "2025-12-14T21:58:00+08:00",
+  "summary": "Docker容器构建方案部分成功 - .so构建完成，IDL生成失败",
+  "verification": {
+    "exo_hooks_so": {
+      "status": "success",
+      "path": "anchor/target/deploy/exo_hooks.so",
+      "size_bytes": 233336
+    },
+    "exo_hooks_json": {
+      "status": "failed",
+      "error": "anchor-syn compilation error - proc_macro2::Span::source_file() API unavailable"
+    },
+    "exo_hooks_ts": {
+      "status": "blocked",
+      "reason": "depends on IDL generation"
+    }
+  },
+  "root_cause": {
+    "component": "Anchor 0.30.x IDL generator",
+    "api": "proc_macro2::Span::source_file()",
+    "requirement": "rustc 1.82+ with proc_macro_span feature",
+    "docker_images_tested": [
+      {"image": "backpackapp/build:v0.30.1", "rustc": "1.75.0-dev", "result": "insufficient"},
+      {"image": "backpackapp/build:v0.31.0", "rustc": "1.79.0-dev", "result": "insufficient"}
+    ]
+  },
+  "csa_decision": {
+    "adr": "ADR-008",
+    "action": "Decompose + Partial Gate",
+    "spawned_tasks": ["Task-06B", "Task-06C"],
+    "gate_status": "partial_complete"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "task_id": "Task-07",
+  "status": "partial_success",
+  "execution_mode": "Serial-Batching",
+  "timestamp": "2024-12-14T22:45:00+08:00",
+  "description": "exo-hooks Bankrun 单元测试",
+  "modified_files": [
+    "anchor/package.json",
+    "anchor/tsconfig.json",
+    "anchor/tests/exo-hooks.test.ts"
+  ],
+  "verification": {
+    "unit": {
+      "command": "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/exo-hooks.test.ts",
+      "exit_code": 1,
+      "tests_passed": 1,
+      "tests_failed": 4,
+      "output_snippet": "AC-03: transferHook (fee calculation verification) ✔ should verify fee calculation logic - 1 passing (106ms)"
+    }
+  },
+  "acceptance_criteria": {
+    "AC-01": {"status": "blocked", "reason": "IDL discriminator mismatch"},
+    "AC-02": {"status": "blocked", "reason": "IDL discriminator mismatch"},
+    "AC-03": {"status": "passed", "evidence": "Fee calculation unit test passed"},
+    "AC-04": {"status": "blocked", "reason": "IDL discriminator mismatch"},
+    "AC-05": {"status": "blocked", "reason": "IDL discriminator mismatch"}
+  },
+  "diagnostics_log": [
+    {
+      "trigger": "InstructionFallbackNotFound error on all integration tests",
+      "action": "Diagnosed as IDL discriminator mismatch - manual IDL (Task-06B) has estimated discriminators that don't match compiled program",
+      "result": "Root cause identified - upstream dependency on Task-06A failure (ADR-008)"
+    },
+    {
+      "trigger": "Program not deployed initially",
+      "action": "Deployed exo_hooks.so with --bpf-program flag to correct address",
+      "result": "Resolved"
+    }
+  ],
+  "blocker": {
+    "type": "upstream_dependency",
+    "source": "Task-06A (Anchor IDL generation failure)",
+    "impact": "Manual IDL discriminators don't match compiled program",
+    "resolution_path": "Fix Anchor toolchain or extract discriminators from .so file"
+  },
+  "artifacts": {
+    "test_file": "anchor/tests/exo-hooks.test.ts",
+    "package_json": "anchor/package.json",
+    "tsconfig": "anchor/tsconfig.json"
+  },
+  "note_to_csa": "单元测试 (AC-03) 通过，验证了 TypeScript 费率计算逻辑正确。集成测试因手动 IDL discriminator 不匹配被阻塞 - 这是 Task-06A anchor build 失败的下游影响。建议：(1) 标记为 PARTIAL GATE，(2) 后续修复 Anchor 工具链后重新生成 IDL 并补充集成测试。"
+}
