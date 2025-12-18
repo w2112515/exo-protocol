@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { ACTIONS_CORS_HEADERS } from '@/lib/api-utils';
 
-export const runtime = 'nodejs'; // Changed from 'edge' to support fs
+export const runtime = 'edge';
 
 interface MockSkill {
     skill_id: string;
@@ -22,12 +20,12 @@ export async function OPTIONS(request: NextRequest) {
     });
 }
 
-// Helper to load mock skills
-async function loadMockSkills(): Promise<MockSkill[]> {
+// Helper to load mock skills via HTTP (works in Edge/Serverless)
+async function loadMockSkills(origin: string): Promise<MockSkill[]> {
     try {
-        const filePath = path.join(process.cwd(), 'public', 'mock', 'mock_skills.json');
-        const content = await fs.readFile(filePath, 'utf-8');
-        return JSON.parse(content);
+        const response = await fetch(`${origin}/mock/mock_skills.json`);
+        if (!response.ok) return [];
+        return response.json();
     } catch {
         return [];
     }
@@ -45,7 +43,7 @@ export async function GET(
     ).toString();
 
     // Load mock data and find skill
-    const skills = await loadMockSkills();
+    const skills = await loadMockSkills(requestUrl.origin);
     const skill = skills.find(s => s.skill_id === skillId);
 
     const title = skill ? skill.name : `Skill: ${skillId}`;
