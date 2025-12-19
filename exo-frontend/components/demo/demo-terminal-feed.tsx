@@ -1,7 +1,14 @@
 'use client'
 
 import { useDemoStore } from "@/store/use-demo-store"
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useCallback } from "react"
+
+const SOLANA_HASH_REGEX = /\b([1-9A-HJ-NP-Za-km-z]{43,88})\b/g
+
+function isSolanaSignature(str: string): boolean {
+  if (str.length < 43 || str.length > 88) return false
+  return /^[1-9A-HJ-NP-Za-km-z]+$/.test(str)
+}
 
 export function DemoTerminalFeed() {
   const { logs } = useDemoStore()
@@ -11,7 +18,7 @@ export function DemoTerminalFeed() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [logs])
 
-  const getLogColor = (level: string) => {
+  const getLogColor = useCallback((level: string) => {
     switch (level) {
       case 'INFO': return 'text-blue-400'
       case 'WARN': return 'text-yellow-400'
@@ -19,7 +26,42 @@ export function DemoTerminalFeed() {
       case 'SUCCESS': return 'text-green-400'
       default: return 'text-slate-400'
     }
-  }
+  }, [])
+
+  const renderMessageWithLinks = useCallback((message: string) => {
+    const parts: (string | React.ReactElement)[] = []
+    let lastIndex = 0
+    let match: RegExpExecArray | null
+    const regex = new RegExp(SOLANA_HASH_REGEX.source, 'g')
+    
+    while ((match = regex.exec(message)) !== null) {
+      const hash = match[1]
+      if (isSolanaSignature(hash)) {
+        if (match.index > lastIndex) {
+          parts.push(message.slice(lastIndex, match.index))
+        }
+        parts.push(
+          <a
+            key={`${hash}-${match.index}`}
+            href={`https://solscan.io/tx/${hash}?cluster=devnet`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {hash.slice(0, 8)}...{hash.slice(-4)}
+          </a>
+        )
+        lastIndex = match.index + match[0].length
+      }
+    }
+    
+    if (lastIndex < message.length) {
+      parts.push(message.slice(lastIndex))
+    }
+    
+    return parts.length > 0 ? parts : message
+  }, [])
 
   return (
     <div className="h-full flex flex-col font-mono text-sm">
@@ -41,7 +83,7 @@ export function DemoTerminalFeed() {
             <span className="text-slate-600 shrink-0">[{log.timestamp}]</span>
             <span className={`break-all ${getLogColor(log.level)}`}>
               {log.level !== 'INFO' && <span className="mr-2">[{log.level}]</span>}
-              {log.message}
+              {renderMessageWithLinks(log.message)}
             </span>
           </div>
         ))}

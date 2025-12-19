@@ -260,9 +260,10 @@ exo-protocol/
 
 | Resource | URL |
 |----------|-----|
-| 🎬 Demo Video | *Coming Soon* |
+| 🎬 Demo Video | [YouTube](https://youtu.be/YOUR_VIDEO_ID) *(Upload after recording)* |
 | 🔗 Live Blink | [dial.to](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1) |
 | 🌐 Live Demo | [exo-frontend-psi.vercel.app](https://exo-frontend-psi.vercel.app) |
+| 📖 Demo Page | [/demo](https://exo-frontend-psi.vercel.app/demo) *(One-shot presentation view)* |
 
 ---
 

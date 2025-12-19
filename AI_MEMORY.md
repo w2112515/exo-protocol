@@ -43,6 +43,64 @@
 
 ## Active Blueprint (当前任务 - 不超过50行)
 
+### Phase 17: Demo Optimization - OPOS特性展示 [✅ COMPLETE]
+
+> **Priority**: P1 (Champion Polish)
+> **Goal**: 补齐OPOS徽章、分账可视化、挑战窗口倒计时，对齐视频剧本
+> **Spec**: `.project_state/plans/P17-DEMO-OPTIMIZATION_spec.md`
+> **CSA Audit**: ✅ PASS (2024-12-19)
+
+---
+
+#### Simple Tasks Batch (P17-04, P17-05)
+| ID | Input | Action | Verify |
+|----|-------|--------|--------|
+| P17-04 | `exo-frontend/app/demo/page.tsx` | 顶部添加品牌Header (Logo + Tagline: "Skill-Native PayFi for Agent Economy") | 截图验证 |
+| P17-05 | `exo-frontend/components/demo/demo-terminal-feed.tsx` | Hash正则匹配→包装为Solscan Devnet链接 | 点击链接验证跳转 |
+
+---
+
+### [x] P17-01: OPOS Tech Badge 组件
+- **Type**: `Standard / UI` | **Priority**: Must | **Est**: 2h
+- **Input Files**: 
+  - 新增: `exo-frontend/components/demo/tech-stack-badge.tsx`
+  - 修改: `exo-frontend/app/demo/page.tsx`
+  - 修改: `exo-frontend/store/use-demo-store.ts`
+- **depends_on**: 无
+- **Action**:
+  - 创建 OPOS VERIFIED 徽章组件，含 Token-2022 / cNFT / Hooks 三个子徽章
+  - 根据 Demo 状态自动高亮对应徽章 (IDLE无→LOCKED:Token-2022→EXECUTING:cNFT→COMMITTED:Hooks→FINALIZED:全亮)
+  - 集成到 Demo 页面 Blink 执行器下方
+- **Verify**:
+  - Unit: 手动切换状态，截图对比徽章高亮
+  - Evidence: 5种状态截图
+
+---
+
+### [x] P17-02: 分账比例条形图
+- **Type**: `Standard / UI` | **Priority**: Must | **Est**: 1.5h
+- **Input Files**:
+  - 新增: `exo-frontend/components/demo/revenue-split.tsx`
+  - 修改: `exo-frontend/components/demo/state-flow-diagram.tsx`
+- **depends_on**: 无
+- **Action**:
+  - 创建水平条形图组件，显示 Executor 85% / Creator 10% / Protocol 5%
+  - 使用 emerald/cyan/gray 三色区分
+  - 在 COMMITTED/FINALIZED 状态时显示
+- **Verify**:
+  - Unit: 截图验证比例显示
+  - Evidence: COMMITTED 状态截图
+
+---
+
+### [x] P17-03: 挑战窗口 + FINALIZED 状态
+- **Spec**: `.project_state/plans/P17-03_spec.md`
+- **Type**: `Critical / Logic + UI` | **Risk**: 🟡 Medium
+- **Summary**: 扩展状态机，新增 CHALLENGE_WINDOW → FINALIZED 路径，40 slots 倒计时进度条
+- **Blocked**: No
+
+---
+
 ### Phase 16: Operation Polish (Frontend Fixes) [✅ COMPLETE]
 
 > **Priority**: P0 (Critical Fixes)
@@ -68,9 +126,14 @@
 ### [x] P16-IM01: Dashboard 性能与错误处理 ✅
 - **Summary**: useMemo + Error Retry 按钮
 
-### [ ] P16-IM02: 列表页虚拟滚动/分页 (用户单独处理)
-### [ ] P16-IM03: Loading Skeleton (用户单独处理)
-### [ ] P16-IM04: 移动端导航 (用户单独处理)
+### [x] P16-IM02: 列表页分页 ✅
+- **Summary**: visibleCount + Load More 按钮 (skills/blinks 页面)
+
+### [x] P16-IM03: Loading Skeleton ✅
+- **Summary**: skeleton.tsx + skill-card-skeleton.tsx
+
+### [x] P16-IM04: 移动端导航 ✅
+- **Summary**: header.tsx Hamburger 菜单 + Mobile Dropdown
 
 ### [x] P16-IM05: Demo 重置按钮 ✅
 - **Summary**: 添加 Reset Demo 按钮
@@ -78,7 +141,7 @@
 ### [x] P16-IM06: ParticleNetwork 性能优化 ✅
 - **Summary**: prefers-reduced-motion 检测 + 静态 fallback
 
-### [ ] P16-IM07: Toast 通知系统 (用户单独处理)
+### [ ] P16-IM07: Toast 通知系统 (非阻塞, 可后续迭代)
 
 ### [x] P16-RF: Refactor Tasks Batch ✅
 - RF01✅ lib/constants.ts | RF02✅ mock-service.ts | RF03✅ 删除冗余类型
@@ -179,10 +242,18 @@
 
 ## WAP Task Queue
 
-> **Status**: 🟢 IDLE - All P16 Tasks Complete
-> **Last Completed**: P16-IM02/03/04/07 UI Polish (2024-12-19 21:45 UTC+8)
-> **Pending for User**: None
-> **Next Action**: Record Demo Video & Final Submission
+> **Status**: ✅ COMPLETE - CSA Final Audit Passed
+> **Audit**: ✅ ALL PASS by CSA (2024-12-19 22:28 UTC+8)
+> **Spec**: `.project_state/plans/P17-DEMO-OPTIMIZATION_spec.md`
+
+### 派发指令 (已完成)
+| Task | 类型 | 审计状态 |
+|------|------|----------|
+| P17-01 | Standard/UI | ✅ PASS |
+| P17-02 | Standard/UI | ✅ PASS |
+| P17-03 | Critical/Logic | ✅ PASS |
+| P17-04 | Simple | ✅ PASS |
+| P17-05 | Simple | ✅ PASS |
 
 
 ## Deployment Assets
@@ -230,7 +301,8 @@
 | Phase 13 | ✅ **COMPLETE** | P13-DEMO✅ |
 | Phase 14 | ✅ **COMPLETE** | P14-C01[~] P14-C02✅ P14-C03✅ P14-C04✅ |
 | Phase 15 | ✅ **COMPLETE** | P15-S01✅ P15-S02✅ P15-C01✅ P15-S03✅ P15-S04✅ |
-| Phase 16 | ✅ **COMPLETE** | CR01-05✅ IM01✅ IM05✅ IM06✅ RF01-04✅ RF06-07✅ |
+| Phase 16 | ✅ **COMPLETE** | CR01-05✅ IM01-06✅ RF01-07✅ (IM07可选) |
+| Phase 17 | ✅ **COMPLETE** | P17-01✅ P17-02✅ P17-03✅ P17-04✅ P17-05✅ |
 
 ---
 
@@ -250,6 +322,6 @@
 
 ---
 
-*Last Updated: 2024-12-19 21:47 UTC+8 (CSA Audit: Phase 16 COMPLETE - All Critical Fixes Applied)*
+*Last Updated: 2024-12-20 00:32 UTC+8 (CSA: P16 实查修正, blinks分页bug已修)*
 
 

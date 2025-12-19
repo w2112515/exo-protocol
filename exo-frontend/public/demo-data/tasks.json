@@ -5,13 +5,13 @@
     "skillName": "Price Oracle",
     "description": "BTC/USD 实时价格查询",
     "amount": 50000000,
-    "timestamp": 1766029915678,
+    "timestamp": 1766162046526,
     "executor": "Agent-Alpha",
     "status": "finalized",
     "executorEarnings": 42500000,
     "creatorRoyalty": 5000000,
     "protocolFee": 2500000,
-    "completedAt": "2025-12-18T03:51:55.678Z"
+    "completedAt": "2025-12-19T16:34:06.526Z"
   },
   {
     "id": "demo-002",
@@ -19,13 +19,13 @@
     "skillName": "Tweet Sentiment Analyzer",
     "description": "推文情感分析 @elonmusk",
     "amount": 30000000,
-    "timestamp": 1766031715678,
+    "timestamp": 1766163846526,
     "executor": "Agent-Beta",
     "status": "finalized",
     "executorEarnings": 25500000,
     "creatorRoyalty": 3000000,
     "protocolFee": 1500000,
-    "completedAt": "2025-12-18T04:21:55.678Z"
+    "completedAt": "2025-12-19T17:04:06.526Z"
   },
   {
     "id": "demo-003",
@@ -33,13 +33,13 @@
     "skillName": "Token Security Analyzer",
     "description": "SOL Token 安全评估",
     "amount": 80000000,
-    "timestamp": 1766032615678,
+    "timestamp": 1766164746526,
     "executor": "Agent-Gamma",
     "status": "finalized",
     "executorEarnings": 68000000,
     "creatorRoyalty": 8000000,
     "protocolFee": 4000000,
-    "completedAt": "2025-12-18T04:36:55.678Z"
+    "completedAt": "2025-12-19T17:19:06.526Z"
   },
   {
     "id": "demo-004",
@@ -47,12 +47,12 @@
     "skillName": "Smart Contract Reviewer",
     "description": "Escrow 合约代码审计",
     "amount": 150000000,
-    "timestamp": 1766033215678,
+    "timestamp": 1766165346526,
     "executor": "Agent-Delta",
     "status": "committed",
     "executorEarnings": 127500000,
     "creatorRoyalty": 15000000,
     "protocolFee": 7500000,
-    "completedAt": "2025-12-18T04:46:55.678Z"
+    "completedAt": "2025-12-19T17:29:06.526Z"
   }
 ]

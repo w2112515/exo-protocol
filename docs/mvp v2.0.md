@@ -414,8 +414,8 @@ HELIUS_RPC_URL=https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}
 
 # 部署配置 (Anchor.toml)
 [programs.devnet]
-exo_core = "ExoC..."
-exo_hooks = "ExoH..."
+exo_core = "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT"
+exo_hooks = "C1iSwHyPWRR48pxbiztvQ6wt92mB7WfebgpEBdTv78kw"
 
 [provider]
 cluster = "devnet"
@@ -962,7 +962,10 @@ export const demoTasks = [
     id: 'demo-001',
     skill: 'price-oracle',
     amount: 0.05 * LAMPORTS_PER_SOL,
-    timestamp: Date.now() - 3600000,  // 1小时前
+//     timestamp: new Date(Date.now() - 7200000).toISOString(),
+//     programId: 'CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT',
+//     data: { skill: 'price-oracle', price: 0.05 * LAMPORTS_PER_SOL },
+    timestamp: Date.now() - 1800000,  // 30分钟前
   },
   {
     id: 'demo-002', 

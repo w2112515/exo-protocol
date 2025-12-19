@@ -67,10 +67,25 @@ export default function BlinksPage() {
 
                             {/* Skills Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {skills.map((skill) => (
+                                {visibleSkills.map((skill) => (
                                     <SkillBlinkCard key={skill.skill_id} skill={skill} />
                                 ))}
                             </div>
+
+                            {/* Load More Button */}
+                            {visibleCount < skills.length && (
+                                <div className="mt-12 flex justify-center">
+                                    <button
+                                        onClick={handleLoadMore}
+                                        className="px-6 py-3 rounded-lg bg-white/5 border border-white/10 text-white/70 font-mono text-sm hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+                                    >
+                                        <span>Load More</span>
+                                        <span className="px-1.5 py-0.5 rounded bg-black/40 text-xs text-white/40">
+                                            {skills.length - visibleCount} remaining
+                                        </span>
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

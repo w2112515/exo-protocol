@@ -50,7 +50,7 @@ export default function Home() {
             </Link>
 
             <a
-              href="https://github.com/exo-protocol"
+              href="https://github.com/w2112515/exo-protocol"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-12 w-40 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-sm transition-colors hover:bg-white/10"
