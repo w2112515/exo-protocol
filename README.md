@@ -14,7 +14,7 @@
 [![Docs](https://img.shields.io/badge/Docs-Read-blue?style=flat&logo=gitbook)](https://exo-frontend-psi.vercel.app/docs)
 [![Blinks](https://img.shields.io/badge/Blinks-Try_Now-black?style=flat&logo=x)](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
 
-[🚀 Launch App](https://exo-frontend-psi.vercel.app) · [📖 Documentation](https://exo-frontend-psi.vercel.app/docs) · [🎬 Demo Video](VIDEO_LINK_PLACEHOLDER) · [💬 Try Blink](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
+[🚀 Launch App](https://exo-frontend-psi.vercel.app) · [📖 Documentation](https://exo-frontend-psi.vercel.app/docs) · [🎬 Demo Video](https://www.youtube.com/watch?v=yphrfnf9D1E) · [💬 Try Blink](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
 
 </div>
 
@@ -334,7 +334,7 @@ This project is licensed under the [MIT License](LICENSE).
 | **Event** | Solana Colosseum Hackathon |
 | **Track** | PayFi + AI Infrastructure |
 | **Team** | Exo Protocol |
-| **Demo** | [Watch Video](VIDEO_LINK_PLACEHOLDER) |
+| **Demo** | [Watch Video](https://www.youtube.com/watch?v=yphrfnf9D1E) |
 | **Live** | [exo-frontend-psi.vercel.app](https://exo-frontend-psi.vercel.app) |
 
 ---
