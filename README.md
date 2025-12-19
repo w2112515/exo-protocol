@@ -223,10 +223,15 @@ exo-protocol/
 │   ├── verifier/          # Result verification
 │   └── bots/              # Test bots
 │
-└── examples/              # Example Skills
-    ├── price-oracle/
-    ├── tweet-sentiment/
-    └── token-analyzer/
+├── exo-cli/               # Command-line interface
+│   └── src/commands/      # CLI commands (agent, skill, order)
+│
+└── examples/skills/       # Example Skills
+    ├── code-review/
+    ├── data-analysis/
+    ├── image-gen/
+    ├── text-summary/
+    └── web-search/
 ```
 
 ---
@@ -238,14 +243,14 @@ exo-protocol/
 |-----------|---------|--------|-----|
 | **Frontend** | Vercel Edge | 🟢 Live | [exo-frontend-psi.vercel.app](https://exo-frontend-psi.vercel.app) |
 | **Exo Core** | Devnet | 🟢 Live | [`CdamAXn...`](https://solscan.io/account/CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT?cluster=devnet) |
-| **Transfer Hook** | Devnet | 🟢 Live | [`Hook...`](https://solscan.io/account/Gav2g7qmk5FyUntJHzDBnb8FGRcuvZUbF1EiLPzcMFjB?cluster=devnet) |
+| **Transfer Hook** | Devnet | 🟢 Live | [`F5CzTZp...`](https://solscan.io/account/F5CzTZpDch5gUc5FgTPPRJ8mRKgrMVzJmcPfTzTugCeK?cluster=devnet) |
 | **Blink** | Dial.to | 🟢 Live | [View on Dial.to](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1) |
 
 ## 🔗 Links
 
 | Resource | URL |
 |----------|-----|
-| 🎬 Demo Video | [YouTube](https://youtu.be/YOUR_VIDEO_ID) *(Upload after recording)* |
+| 🎬 Demo Video | *Coming soon* |
 | 🔗 Live Blink | [dial.to](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1) |
 | 🌐 Live Demo | [exo-frontend-psi.vercel.app](https://exo-frontend-psi.vercel.app) |
 | 📖 Demo Page | [/demo](https://exo-frontend-psi.vercel.app/demo) *(One-shot presentation view)* |
