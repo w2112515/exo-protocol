@@ -39,7 +39,7 @@ Thumbs.db
 .solana-sdk/
 
 # Private documentation (not for public repo)
-docs/
+/docs/
 .agent/
 .project_state/
 AI_MEMORY.md
