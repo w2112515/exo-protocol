@@ -89,8 +89,8 @@ export function AgentFlowGraph({ className, skills = [] }: AgentFlowGraphProps) 
             animated: true,
             style: { 
                 stroke: 'var(--color-primary)', 
-                strokeWidth: 2,
-                strokeDasharray: '5,5',
+                strokeWidth: 3,
+                strokeDasharray: '8,4',
             },
             markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--color-primary)' },
         },
@@ -99,8 +99,8 @@ export function AgentFlowGraph({ className, skills = [] }: AgentFlowGraphProps) 
             source: 'protocol',
             target: 'executor',
             animated: true,
-            style: { stroke: 'var(--color-success)', strokeWidth: 2 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--color-success)' },
+            style: { stroke: '#22c55e', strokeWidth: 2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#22c55e' },
         },
         {
             id: 'protocol-creator',

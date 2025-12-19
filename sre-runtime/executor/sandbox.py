@@ -73,7 +73,8 @@ def execute_in_sandbox(
     container = client.containers.run(
         image=image,
         command=f"python {entrypoint}",
-        environment={"INPUT_JSON": json.dumps(input_data)},
+        # NOTE: sort_keys=True ensures deterministic hashing for Challenger verification
+        environment={"INPUT_JSON": json.dumps(input_data, sort_keys=True)},
         mem_limit=config.mem_limit,
         cpu_period=config.cpu_period,
         cpu_quota=config.cpu_quota,
@@ -90,8 +91,10 @@ def execute_in_sandbox(
             logs = container.logs().decode("utf-8")
             raise RuntimeError(f"Container exited with code {exit_code}: {logs}")
         
-        # 4. 获取输出
+        # 4. 获取输出并规范化 (确保哈希一致性)
         output = container.logs().decode("utf-8")
-        return json.loads(output)
+        result = json.loads(output)
+        # NOTE: sort_keys=True ensures deterministic hashing for Challenger verification
+        return json.loads(json.dumps(result, sort_keys=True))
     finally:
         container.remove(force=True)

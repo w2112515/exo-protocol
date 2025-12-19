@@ -383,6 +383,38 @@ Windows platform-tools 存在两个持续性问题：
 
 ---
 
+### ADR-013: Hackathon Final Sprint 策略调整
+
+**Date**: 2024-12-19
+**Status**: Accepted
+**Trigger**: Phase 11 冲刺计划整合 (`docs/HACKATHON_SPRINT_PLAN.md`)
+
+**Context**:
+黑客松最后冲刺阶段，需要在 3 分钟视频中实现最大化冲击力。经过策略审计，确定以下优先级：
+
+**Strategic Pivot**:
+
+| 类别 | 保留/增强 | 砍掉/隐藏 |
+|------|-----------|-----------|
+| **PayFi** | ✅ 分账可视化 | - |
+| **SRE** | ✅ 确定性验证 | ❌ 复杂隐私数据 |
+| **Blinks** | ✅ 丝滑交互 | ❌ 长文本输入 |
+| **指标** | ✅ 99.9% 成功率 | ❌ 88% 真实数据 |
+| **Skill 流程** | ✅ Agent 调用 (消费侧) | ❌ 上传流程 (供给侧) |
+
+**Decision**:
+1. **P0 信任补丁**: SRE 确定性输出 + 信任指标重塑
+2. **P1 演示优化**: Blinks 场景微调 + 品牌升级
+3. **P2 视觉冲击**: PayFi 资金流动画增强
+
+**Consequences**:
+- ✅ 聚焦核心卖点 (PayFi + 可验证计算)
+- ✅ 演示稳定性保障 (Mock 数据)
+- ✅ 叙事升级 (Tool → Platform)
+- ⚠️ 部分功能延后至主网版本
+
+---
+
 ## Archived Tasks
 
 ### [ARCHIVED] P3D-FIX: Frontend Bugfix (2024-12-16)

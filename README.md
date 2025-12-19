@@ -1,6 +1,6 @@
 # Exo Protocol
 
-> **Skill-Native PayFi for the Agent Economy**
+> **The App Store for AI Agents**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Solana](https://img.shields.io/badge/Solana-Devnet-green)](https://explorer.solana.com/)

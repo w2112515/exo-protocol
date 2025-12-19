@@ -27,7 +27,7 @@ export default function Home() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
               <TypewriterText
                 baseText=""
-                words={["Agent Economy", "PayFi Protocol", "Skill-Native"]}
+                words={["Agent Economy", "PayFi Protocol", "The App Store"]}
                 cursorColor="bg-emerald-400"
               />
             </span>

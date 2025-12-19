@@ -56,7 +56,14 @@ export async function GET(
             actions: [
                 {
                     label: "Purchase Skill",
-                    href: `${baseHref}`,
+                    href: `${baseHref}?pr={pr}`,
+                    parameters: [
+                        {
+                            name: "pr",
+                            label: "GitHub PR URL (for Code Review)",
+                            required: false,
+                        },
+                    ],
                 },
             ],
         },

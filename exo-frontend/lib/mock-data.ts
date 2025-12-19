@@ -9,6 +9,7 @@ export interface Order {
     created_at: string;
     result_hash: string;
     agent_id: string;
+    verificationStatus: 'verified' | 'pending' | 'challenged';
 }
 
 export interface Skill {
@@ -54,7 +55,8 @@ export function isValidOrder(data: unknown): data is Order {
         typeof order.execution_time_ms === 'number' &&
         typeof order.created_at === 'string' &&
         typeof order.result_hash === 'string' &&
-        typeof order.agent_id === 'string'
+        typeof order.agent_id === 'string' &&
+        ['verified', 'pending', 'challenged'].includes(order.verificationStatus as string)
     );
 }
 
