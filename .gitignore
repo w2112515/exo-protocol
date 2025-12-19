@@ -37,3 +37,8 @@ Thumbs.db
 
 # Large Solana SDK binaries
 .solana-sdk/
+
+# Private documentation (not for public repo)
+docs/
+.agent/
+.project_state/
