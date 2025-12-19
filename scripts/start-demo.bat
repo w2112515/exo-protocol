@@ -5,7 +5,7 @@ title Exo Protocol - One-Shot Demo Launcher
 echo.
 echo ╔══════════════════════════════════════════════════════════════╗
 echo ║           EXO PROTOCOL - ONE-SHOT DEMO                       ║
-echo ║           Phase 13: The "Red Slash" Moment                   ║
+echo ║           Phase 16: Champion Ready                            ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 
@@ -26,14 +26,15 @@ echo.
 echo ╔══════════════════════════════════════════════════════════════╗
 echo ║  ✅ 准备就绪！                                               ║
 echo ║                                                              ║
-echo ║  已打开:                                                     ║
-echo ║    - Demo Page (http://localhost:3000/demo)                  ║
+echo ║  本地: http://localhost:3000/demo                            ║
+echo ║  生产: https://exo-frontend-psi.vercel.app/demo              ║
 echo ║                                                              ║
 echo ║  操作指南:                                                   ║
 echo ║    1. 按 F11 全屏                                            ║
 echo ║    2. 打开 OBS 开始录制                                      ║
-echo ║    3. 按照 docs/VIDEO_RECORDING_SCRIPT.md 念台词             ║
-echo ║    4. 按 'X' 键切换恶意模式                                  ║
+echo ║    3. 按 'X' 键切换恶意模式                                  ║
+echo ║    4. 点击 "Reset Demo" 按钮重置状态                        ║
+echo ║    5. 参考 docs/VIDEO_RECORDING_SCRIPT.md                    ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 echo 按任意键关闭此窗口...

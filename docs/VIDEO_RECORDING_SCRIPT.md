@@ -1,9 +1,11 @@
 # 🎬 Exo Protocol One-Shot 演示视频录制脚本
 
-**版本**: v3.0 (Phase 15 Grand Champion Edition)
+**版本**: v3.1 (Phase 16 Polish Edition)
 **目标时长**: 3 分钟
 **核心展示**: Happy Path vs. Malicious Path (One-Shot View)
-**页面地址**: `http://localhost:3000/demo`
+**页面地址**: 
+- 本地: `http://localhost:3000/demo`
+- 生产: `https://exo-frontend-psi.vercel.app/demo`
 
 ---
 
@@ -32,7 +34,8 @@
 
 ### 2. 快捷键复习
 - **'X' 键**: 切换 "Malicious Mode" (恶意模式)
-- **F5**: 重置页面状态
+- **Reset Demo 按钮**: 状态机重置 (左侧卡片底部)
+- **F5**: 刷新页面 (备用)
 
 ---
 
@@ -86,4 +89,5 @@
 | 动画卡顿 | 关闭后台不必要的 Chrome 标签页 |
 | 点击无效 | 确认上一次执行已完成 (Step回到 IDLE 或 SLASHED) |
 | 'X' 键没反应 | 确保焦点在页面上 (点击一下页面空白处) |
-| 日志不滚动 | 尝试 F5 刷新页面重置 Store |
+| 日志不滚动 | 点击 "Reset Demo" 按钮重置状态 |
+| 需要重新演示 | 点击 "Reset Demo" 按钮，无需刷新页面 |
