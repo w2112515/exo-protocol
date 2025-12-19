@@ -17,7 +17,7 @@ const ROADMAP_DATA = [
         ],
     },
     {
-        quarter: "Q1 2025",
+        quarter: "Q2 2025",
         status: "completed",
         title: "PayFi Layer",
         items: [
@@ -28,33 +28,35 @@ const ROADMAP_DATA = [
         ],
     },
     {
-        quarter: "Q2 2025",
+        quarter: "Q4 2025",
         status: "current",
+        title: "Colosseum Hackathon",
+        items: [
+            "Full-stack demo platform",
+            "Fraud proof simulation",
+            "Skills Marketplace UI",
+            "Documentation site",
+        ],
+    },
+    {
+        quarter: "Q1 2026",
+        status: "upcoming",
         title: "Mainnet Launch",
         items: [
             "Mainnet deployment",
             "Token economics ($EXO)",
             "Agent staking rewards",
-            "Skill marketplace v2",
+            "Audit & security review",
         ],
     },
     {
-        quarter: "Q3 2025",
+        quarter: "Q2 2026",
         status: "upcoming",
-        title: "Cross-Chain Expansion",
+        title: "Ecosystem Expansion",
         items: [
-            "Wormhole integration",
-            "Multi-chain settlements",
-            "Enterprise partnerships",
-        ],
-    },
-    {
-        quarter: "Q4 2025",
-        status: "upcoming",
-        title: "Agent Autonomy",
-        items: [
+            "Wormhole cross-chain",
             "Agent-to-Agent trading",
-            "Autonomous skill discovery",
+            "Enterprise partnerships",
             "Decentralized governance",
         ],
     },
