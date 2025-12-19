@@ -22,10 +22,10 @@ interface TerminalFeedProps {
 }
 
 // 状态颜色映射 (Terminal Minimalism 设计)
-const statusColors = {
-    completed: 'text-success', // --color-success (#14F195)
-    failed: 'text-red-500',
-    timeout: 'text-yellow-500',
+const statusStyles = {
+    completed: 'border border-emerald-500/30 text-emerald-400 bg-transparent',
+    failed: 'border border-red-500/30 text-red-400 bg-transparent',
+    timeout: 'border border-yellow-500/30 text-yellow-400 bg-transparent',
 } as const;
 
 // 状态显示文本
@@ -187,7 +187,7 @@ export function TerminalFeed({
         if (!showLiveLogs) return;
 
         // 检查是否有 Disputed 事件 (check logs directly, not parsedLogs to avoid recompute)
-        const hasDispute = logs.some(log => 
+        const hasDispute = logs.some(log =>
             log.logs.some(l => l.includes('Disputed') || l.includes('DISPUTE'))
         );
 
@@ -207,7 +207,7 @@ export function TerminalFeed({
                 {/* 连接状态指示器 */}
                 <div className="flex items-center gap-2">
                     <div className={cn(
-                        'w-2 h-2 rounded-full transition-colors duration-300', 
+                        'w-2 h-2 rounded-full transition-colors duration-300',
                         isAlertMode ? 'bg-red-500 animate-ping' : statusStyle.dot
                     )} />
                     <span className="text-xs">
@@ -273,7 +273,7 @@ export function TerminalFeed({
             </div>
 
             {/* 日志列表 */}
-            <div className="space-y-1 relative">
+            <div className="space-y-1 relative scrollbar-hide overflow-y-auto max-h-[400px]">
                 {showLiveLogs && hasApiKey ? (
                     // 实时日志模式
                     logs.length === 0 ? (
@@ -367,7 +367,10 @@ export function TerminalFeed({
                                     </span>
 
                                     {/* 状态 (colored by status) */}
-                                    <span className={cn('w-16 text-right', statusColors[order.status])}>
+                                    <span className={cn(
+                                        'px-2 py-0.5 rounded-full text-xs font-mono',
+                                        statusStyles[order.status]
+                                    )}>
                                         {statusLabels[order.status]}
                                     </span>
                                 </motion.div>

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme inline {
@@ -41,7 +42,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  
+
   /* Custom Extended Colors */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -49,15 +50,17 @@
 
 :root {
   /* Fonts */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
   /* Global Radius - 0.5rem (8px) for cards */
   --radius: 0.5rem;
 
   /* Dark Mode Default (Terminal Minimalism) */
-  --background: #09090B; /* Zinc 950 + Noise */
-  --foreground: #FAFAFA; /* Zinc 50 */
+  --background: #09090B;
+  /* Zinc 950 + Noise */
+  --foreground: #FAFAFA;
+  /* Zinc 50 */
 
   --card: rgba(255, 255, 255, 0.03);
   --card-foreground: #FAFAFA;
@@ -65,14 +68,17 @@
   --popover: #09090B;
   --popover-foreground: #FAFAFA;
 
-  --primary: #9945FF; /* Solana Purple */
+  --primary: #9945FF;
+  /* Solana Purple */
   --primary-foreground: #FFFFFF;
 
-  --secondary: rgba(255, 255, 255, 0.05); /* Zinc 900 equivalent */
+  --secondary: rgba(255, 255, 255, 0.05);
+  /* Zinc 900 equivalent */
   --secondary-foreground: #FAFAFA;
 
   --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: #A1A1AA; /* Zinc 400 */
+  --muted-foreground: #A1A1AA;
+  /* Zinc 400 */
 
   --accent: rgba(153, 69, 255, 0.1);
   --accent-foreground: #9945FF;
@@ -80,12 +86,14 @@
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
 
-  --border: rgba(255, 255, 255, 0.08); /* Subtle border */
+  --border: rgba(255, 255, 255, 0.08);
+  /* Subtle border */
   --input: rgba(255, 255, 255, 0.08);
   --ring: #9945FF;
 
   /* Custom Status Colors */
-  --success: #14F195; /* Solana Green */
+  --success: #14F195;
+  /* Solana Green */
   --success-foreground: #000000;
 
   /* Charts */
@@ -112,6 +120,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
@@ -122,7 +131,7 @@
   .glass-card {
     @apply bg-card backdrop-blur-md border border-border shadow-lg;
   }
-  
+
   .text-gradient {
     @apply bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent;
   }
@@ -131,6 +140,21 @@
   .scan-line {
     animation: scan-line 3s ease-in-out infinite;
   }
+
+  /* Inter font tight letter spacing */
+  .tracking-tight {
+    letter-spacing: -0.04em;
+  }
+
+  /* Scrollbar hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes scan-line {
@@ -138,12 +162,15 @@
     top: -2px;
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     top: 100%;
     opacity: 0;

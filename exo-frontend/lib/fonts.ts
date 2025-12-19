@@ -1,6 +1,7 @@
 // import { Inter, JetBrains_Mono } from "next/font/google";
 
-// Mock fonts to avoid build errors in restricted environments (Google Fonts unreachable)
+// Mock fonts structure. Actual fonts are loaded via CDN in globals.css (Inter + JetBrains Mono)
+// This mock ensures Next.js build doesn't fail in restricted environments while keeping var access
 export const fontSans = {
   variable: "--font-sans",
   style: { fontFamily: 'ui-sans-serif, system-ui, sans-serif' },
