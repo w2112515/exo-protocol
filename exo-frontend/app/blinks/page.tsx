@@ -1,6 +1,7 @@
 "use client";
 
 import { SkillBlinkCard } from "@/components/blinks/skill-blink-card";
+import { SkillCardSkeleton } from "@/components/blinks/skill-card-skeleton";
 import { Header } from "@/components/layout/header";
 import { useSkills } from "@/hooks/use-skills";
 import { Zap, Terminal } from "lucide-react";
