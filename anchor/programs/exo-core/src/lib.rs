@@ -101,4 +101,25 @@ pub mod exo_core {
     pub fn cancel_escrow(ctx: Context<CancelEscrow>) -> Result<()> {
         instructions::cancel_escrow(ctx)
     }
+
+    /// 执行者提交结果哈希
+    /// 
+    /// 将状态从 Pending/InProgress -> Completed (进入挑战窗口)
+    pub fn commit_result(ctx: Context<CommitResult>, result_hash: [u8; 32]) -> Result<()> {
+        instructions::commit_result(ctx, result_hash)
+    }
+
+    /// 挑战已提交的结果
+    /// 
+    /// 条件: 状态为 Completed 且在挑战窗口内 (100 slots ≈ 40s)
+    pub fn challenge(ctx: Context<ChallengeEscrow>, proof: [u8; 64]) -> Result<()> {
+        instructions::challenge(ctx, proof)
+    }
+
+    /// 解决挑战 (MVP: 管理员裁决)
+    /// 
+    /// challenger_wins: true = Slash 执行者并退款, false = 恢复 Completed 状态
+    pub fn resolve_challenge(ctx: Context<ResolveChallenge>, challenger_wins: bool) -> Result<()> {
+        instructions::resolve_challenge(ctx, challenger_wins)
+    }
 }

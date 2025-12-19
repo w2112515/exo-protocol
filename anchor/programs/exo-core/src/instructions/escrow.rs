@@ -197,6 +197,9 @@ pub fn create_escrow(ctx: Context<CreateEscrow>, nonce: u64) -> Result<()> {
     escrow.expires_at = clock.unix_timestamp + EscrowAccount::DEFAULT_EXPIRY_DURATION;
     escrow.nonce = nonce;
     escrow.bump = ctx.bumps.escrow;
+    escrow.result_hash = None;
+    escrow.challenger = None;
+    escrow.challenge_slot = None;
 
     msg!("Escrow created");
     msg!("Buyer: {:?}", escrow.buyer);
@@ -308,6 +311,130 @@ pub fn cancel_escrow(ctx: Context<CancelEscrow>) -> Result<()> {
     Ok(())
 }
 
+/// 执行者提交结果哈希的账户上下文
+#[derive(Accounts)]
+pub struct CommitResult<'info> {
+    #[account(
+        mut,
+        seeds = [ESCROW_SEED, escrow.buyer.as_ref(), escrow.skill.as_ref(), &escrow.nonce.to_le_bytes()],
+        bump = escrow.bump,
+        constraint = escrow.status == EscrowStatus::Pending || escrow.status == EscrowStatus::InProgress @ EscrowError::InvalidEscrowStatus
+    )]
+    pub escrow: Account<'info, EscrowAccount>,
+    #[account(mut)]
+    pub executor: Signer<'info>,
+}
+
+/// 挑战 Escrow 的账户上下文
+#[derive(Accounts)]
+pub struct ChallengeEscrow<'info> {
+    #[account(
+        mut,
+        seeds = [ESCROW_SEED, escrow.buyer.as_ref(), escrow.skill.as_ref(), &escrow.nonce.to_le_bytes()],
+        bump = escrow.bump,
+        constraint = escrow.status == EscrowStatus::Completed @ EscrowError::InvalidEscrowStatus
+    )]
+    pub escrow: Account<'info, EscrowAccount>,
+    #[account(mut)]
+    pub challenger: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+/// 解决挑战的账户上下文
+#[derive(Accounts)]
+pub struct ResolveChallenge<'info> {
+    #[account(
+        mut,
+        seeds = [ESCROW_SEED, escrow.buyer.as_ref(), escrow.skill.as_ref(), &escrow.nonce.to_le_bytes()],
+        bump = escrow.bump,
+        has_one = buyer,
+        constraint = escrow.status == EscrowStatus::Challenged @ EscrowError::InvalidEscrowStatus
+    )]
+    pub escrow: Account<'info, EscrowAccount>,
+    /// CHECK: 仅接收退款
+    #[account(mut)]
+    pub buyer: AccountInfo<'info>,
+    /// 协议管理员 (MVP: 信任管理员裁决)
+    #[account(
+        constraint = authority.key() == protocol_config.authority @ EscrowError::Unauthorized
+    )]
+    pub authority: Signer<'info>,
+    #[account(
+        seeds = [PROTOCOL_CONFIG_SEED],
+        bump = protocol_config.bump
+    )]
+    pub protocol_config: Account<'info, ProtocolConfig>,
+    pub system_program: Program<'info, System>,
+}
+
+/// 执行者提交结果哈希
+/// 将状态从 Pending/InProgress -> Completed (进入挑战窗口)
+pub fn commit_result(ctx: Context<CommitResult>, result_hash: [u8; 32]) -> Result<()> {
+    let escrow = &mut ctx.accounts.escrow;
+    let clock = Clock::get()?;
+    
+    escrow.executor = Some(ctx.accounts.executor.key());
+    escrow.result_hash = Some(result_hash);
+    escrow.status = EscrowStatus::Completed;
+    
+    // 记录 commit slot (挑战窗口起点)
+    escrow.challenge_slot = Some(clock.slot);
+    
+    msg!("Result committed by executor: {:?}", ctx.accounts.executor.key());
+    msg!("Result hash: {:?}", result_hash);
+    msg!("Challenge window started at slot: {}", clock.slot);
+    
+    Ok(())
+}
+
+/// 挑战已提交的结果
+/// 条件: 状态为 Completed 且在挑战窗口内 (100 slots ≈ 40s)
+pub fn challenge(ctx: Context<ChallengeEscrow>, _proof: [u8; 64]) -> Result<()> {
+    let escrow = &mut ctx.accounts.escrow;
+    let clock = Clock::get()?;
+    
+    // 检查挑战窗口 (100 slots)
+    let challenge_slot = escrow.challenge_slot.ok_or(EscrowError::NoChallengeSlot)?;
+    require!(
+        clock.slot <= challenge_slot + 100,
+        EscrowError::ChallengeWindowExpired
+    );
+    
+    // 更新状态
+    escrow.challenger = Some(ctx.accounts.challenger.key());
+    escrow.status = EscrowStatus::Challenged;
+    
+    msg!("Escrow challenged by: {:?}", ctx.accounts.challenger.key());
+    msg!("Challenge slot: {}, Current slot: {}", challenge_slot, clock.slot);
+    
+    Ok(())
+}
+
+/// 解决挑战 - MVP 简化版: 管理员裁决
+/// 完整版应由 Verifier Committee 投票决定
+pub fn resolve_challenge(ctx: Context<ResolveChallenge>, challenger_wins: bool) -> Result<()> {
+    let escrow = &mut ctx.accounts.escrow;
+    
+    if challenger_wins {
+        // 挑战成功: Slash 执行者
+        escrow.status = EscrowStatus::Slashed;
+        
+        // 退还买家本金
+        let amount = escrow.amount;
+        **escrow.to_account_info().try_borrow_mut_lamports()? -= amount;
+        **ctx.accounts.buyer.to_account_info().try_borrow_mut_lamports()? += amount;
+        
+        msg!("Challenge resolved: Challenger wins!");
+        msg!("Refunded {} lamports to buyer: {:?}", amount, ctx.accounts.buyer.key());
+    } else {
+        // 挑战失败: 恢复 Completed 状态，继续原流程
+        escrow.status = EscrowStatus::Completed;
+        msg!("Challenge resolved: Executor wins, status reverted to Completed");
+    }
+    
+    Ok(())
+}
+
 /// Escrow 相关错误
 #[error_code]
 pub enum EscrowError {
@@ -329,4 +456,10 @@ pub enum EscrowError {
     CannotCancelNonPending,
     #[msg("Arithmetic overflow")]
     Overflow,
+    #[msg("Challenge window has expired (100 slots)")]
+    ChallengeWindowExpired,
+    #[msg("No challenge slot recorded")]
+    NoChallengeSlot,
+    #[msg("Unauthorized")]
+    Unauthorized,
 }

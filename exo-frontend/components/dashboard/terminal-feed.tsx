@@ -17,6 +17,8 @@ interface TerminalFeedProps {
     enableWebSocket?: boolean;
     /** Program ID to subscribe to */
     programId?: string;
+    /** Callback when alert state changes */
+    onAlertChange?: (isAlert: boolean) => void;
 }
 
 // 状态颜色映射 (Terminal Minimalism 设计)
@@ -69,6 +71,7 @@ export function TerminalFeed({
     className,
     enableWebSocket = true,
     programId,
+    onAlertChange,
 }: TerminalFeedProps) {
     const [showLiveLogs, setShowLiveLogs] = useState(false);
 
@@ -160,13 +163,43 @@ export function TerminalFeed({
         }
     };
 
+    // 检测是否处于 Alert 模式 (Disputed / Challenge)
+    const [isAlertMode, setIsAlertMode] = useState(false);
+
+    useEffect(() => {
+        if (!showLiveLogs) return;
+
+        // 检查是否有 Disputed 事件
+        const hasDispute = parsedLogs.some(item => 
+            item.parsed?.eventType === EventType.ESCROW_DISPUTED
+        );
+
+        if (hasDispute) {
+            setIsAlertMode(true);
+            // 触发全局 data-alert 状态 (通过 DOM 属性，供父组件感知)
+            document.body.setAttribute('data-alert', 'true');
+            onAlertChange?.(true);
+        } else {
+            // 3秒后自动清除 (模拟短暂警报，或保持直到刷新)
+            // 这里为了演示效果，保持常亮直到手动清除或刷新
+            // setIsAlertMode(false);
+        }
+    }, [parsedLogs, showLiveLogs]);
+
     return (
-        <div className={cn('relative font-mono text-xs', className)}>
+        <div className={cn(
+            'relative font-mono text-xs transition-all duration-500 border border-transparent rounded-lg',
+            isAlertMode && 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)] bg-red-950/10',
+            className
+        )}>
             {/* 顶部工具栏 */}
             <div className="flex items-center justify-between mb-2 px-2 text-muted-foreground">
                 {/* 连接状态指示器 */}
                 <div className="flex items-center gap-2">
-                    <div className={cn('w-2 h-2 rounded-full', statusStyle.dot)} />
+                    <div className={cn(
+                        'w-2 h-2 rounded-full transition-colors duration-300', 
+                        isAlertMode ? 'bg-red-500 animate-ping' : statusStyle.dot
+                    )} />
                     <span className="text-xs">
                         {showLiveLogs && hasApiKey ? statusStyle.label : 'Mock Data'}
                     </span>

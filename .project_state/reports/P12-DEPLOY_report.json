@@ -1,0 +1,35 @@
+{
+  "task_id": "P12-DEPLOY",
+  "status": "success",
+  "timestamp": "2025-12-19T11:12:00+08:00",
+  "environment": {
+    "os": "WSL2 Ubuntu",
+    "anchor_version": "0.31.1",
+    "solana_version": "3.0.13",
+    "cluster": "devnet"
+  },
+  "deployed_programs": [
+    {
+      "name": "exo_core",
+      "program_id": "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT",
+      "data_length": 370032,
+      "balance_sol": 2.5766268,
+      "slot": 429222709
+    },
+    {
+      "name": "exo_hooks",
+      "program_id": "F5CzTZpDch5gUc5FgTPPRJ8mRKgrMVzJmcPfTzTugCeK",
+      "data_length": 250040,
+      "balance_sol": 1.74148248,
+      "slot": 429223033
+    }
+  ],
+  "verification": {
+    "solana_program_show": "PASS",
+    "anchor_toml_match": "PASS"
+  },
+  "explorer_links": [
+    "https://explorer.solana.com/address/CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT?cluster=devnet",
+    "https://explorer.solana.com/address/F5CzTZpDch5gUc5FgTPPRJ8mRKgrMVzJmcPfTzTugCeK?cluster=devnet"
+  ]
+}

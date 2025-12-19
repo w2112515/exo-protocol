@@ -15,7 +15,9 @@ pub enum EscrowStatus {
     InProgress,   // 执行中
     Completed,    // 已完成
     Cancelled,    // 已取消
-    Disputed,     // 争议中 (Phase 2 预留)
+    Challenged,   // 被挑战 (等待裁决)
+    Disputed,     // 争议中 (裁决进行)
+    Slashed,      // 已罚没 (挑战成功)
 }
 
 /// 协议配置账户
@@ -60,13 +62,20 @@ pub struct EscrowAccount {
     pub nonce: u64,
     /// PDA bump
     pub bump: u8,
+    /// 执行者提交的结果哈希 (用于挑战验证)
+    pub result_hash: Option<[u8; 32]>,
+    /// 挑战者地址
+    pub challenger: Option<Pubkey>,
+    /// 挑战时的 slot (用于超时判断)
+    pub challenge_slot: Option<u64>,
 }
 
 impl EscrowAccount {
     /// 账户空间大小
-    /// 8 (discriminator) + 32 (buyer) + 32 (skill) + 1 + 32 (Option<Pubkey>)
+    /// 8 (discriminator) + 32 (buyer) + 32 (skill) + 1 + 32 (Option<Pubkey> executor)
     /// + 8 (amount) + 1 (status) + 8 (created_at) + 8 (expires_at) + 8 (nonce) + 1 (bump)
-    pub const LEN: usize = 8 + 32 + 32 + 1 + 32 + 8 + 1 + 8 + 8 + 8 + 1;
+    /// + 1 + 32 (Option<[u8;32]> result_hash) + 1 + 32 (Option<Pubkey> challenger) + 1 + 8 (Option<u64> challenge_slot)
+    pub const LEN: usize = 8 + 32 + 32 + 1 + 32 + 8 + 1 + 8 + 8 + 8 + 1 + 1 + 32 + 1 + 32 + 1 + 8;
 
     /// 默认有效期: 7天 (秒)
     pub const DEFAULT_EXPIRY_DURATION: i64 = 7 * 24 * 60 * 60;

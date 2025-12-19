@@ -2,6 +2,8 @@
 // 集成: TerminalFeed, AgentFlowGraph, KPICard
 'use client';
 
+import { useState } from 'react';
+import { cn } from "@/lib/utils";
 import { BentoGrid } from "@/components/layout/bento-grid";
 import { GlassCard } from "@/components/ui/glass-card";
 import { TerminalFeed } from "@/components/dashboard/terminal-feed";
@@ -18,6 +20,9 @@ const EXO_PROGRAM_ID = "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT";
 export default function DashboardPage() {
     const { data: orders = [], isLoading: ordersLoading, isError: ordersError } = useOrders();
     const { data: skills = [], isLoading: skillsLoading, isError: skillsError } = useSkills();
+    
+    // Alert mode state for Red Slash demo
+    const [isAlertMode, setIsAlertMode] = useState(false);
 
     const kpis = calculateKPIs(orders, skills);
     const isLoading = ordersLoading || skillsLoading;
@@ -26,7 +31,17 @@ export default function DashboardPage() {
     return (
         <>
             <Header />
-            <main className="container mx-auto p-4 md:p-8 pt-20">
+            
+            {/* Global Red Alert Overlay */}
+            <div className={cn(
+                "fixed inset-0 pointer-events-none z-50 border-[8px] border-red-500/50 transition-opacity duration-500",
+                isAlertMode ? "opacity-100 animate-pulse" : "opacity-0"
+            )} />
+
+            <main className={cn(
+                "container mx-auto p-4 md:p-8 pt-20 transition-all duration-500",
+                isAlertMode && "bg-red-950/10 blur-[0.5px]"
+            )}>
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold font-mono text-foreground mb-2">My Terminal</h1>
                     <p className="text-muted-foreground text-sm">Welcome back, Agent.</p>
@@ -101,6 +116,7 @@ export default function DashboardPage() {
                                 orders={orders} 
                                 className="max-h-[420px] overflow-y-auto pr-2" 
                                 programId={EXO_PROGRAM_ID}
+                                onAlertChange={setIsAlertMode}
                             />
                         )}
                     </GlassCard>

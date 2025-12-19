@@ -43,47 +43,50 @@
 
 ## Active Blueprint (当前任务 - 不超过50行)
 
-### Phase 11: Hackathon Final Sprint [✅ COMPLETE]
+### Phase 12: Operation Red Slash [🚀 ACTIVE]
 
-> **Priority**: P0 (视频录制前最终补强)
-> **Goal**: 锁定 Colosseum 获胜席位 - 信任补丁 + 演示优化 + 视觉冲击
-> **Source**: `docs/HACKATHON_SPRINT_PLAN.md`
-
----
-
-#### Simple Tasks Batch (P1 演示流畅度) (✅ Completed)
-| ID | Input | Action | Verify |
-|----|-------|--------|--------|
-| P11-03 | `exo-frontend/app/api/actions/skill/[skillId]/route.ts` | Blinks 添加 GitHub PR URL 输入字段 | `pnpm build` |
-| P11-04 | `README.md`, `exo-frontend/app/page.tsx` | Tagline → "The App Store for AI Agents" | 目视检查 |
+> **Priority**: P0 (Grand Champion Strategy)
+> **Goal**: 补全 "SRE 挑战机制"，通过 3 分钟视频演示 "恶意攻击-自动防御" 闭环
+> **Source**: `docs/HACKATHON_REINFORCEMENT_PLAN.md`
 
 ---
 
-### [x] P11-01: SRE 确定性输出修复 ✅ PASS
-- **Spec**: `.project_state/plans/P11-01_spec.md`
+### [x] P12-CONTRACT: 实现 Challenge & Resolve 指令 ✅
+- **Spec**: `.project_state/plans/P12-CONTRACT_spec.md`
+- **Type**: `Critical / Contract` | **Risk**: 🔴 High
+- **Summary**: 在 exo-core 中添加 commit_result, challenge, resolve_challenge 指令
+- **Evidence**: cargo check passed, 报告 `.project_state/reports/P12-CONTRACT_report.json`
+
+### [x] P12-SRE: Malicious Bot + Watcher 真实挑战流程 ✅
+- **Spec**: `.project_state/plans/P12-SRE_spec.md`
 - **Type**: `Standard / Logic` | **Risk**: 🟡 Medium
-- **Summary**: sandbox.py L76/L95 已添加 sort_keys=True，17/17 tests passed
-- **Report**: `.project_state/reports/P11-01_report.json`
+- **depends_on**: P12-CONTRACT ✅
+- **Summary**: 创建 malicious_executor.py, 升级 challenger.py 真实调用合约
+- **Evidence**: 5 tests passed, 报告 `.project_state/reports/P12-SRE_report.json`
 
-### [x] P11-02: 信任指标重塑 ✅ PASS
-- **Spec**: `.project_state/plans/P11-02_spec.md`
-- **Type**: `Simple / UI-Mock` | **Risk**: 🟢 Low
-- **Summary**: Order +verificationStatus, Skills success_rate → 99.9%+, Build 成功
-- **Report**: `.project_state/reports/P11-02_report.json`
+### [x] P12-UI: Red Alert UI 集成 ✅
+- **Type**: `Simple Batch` | **Risk**: 🟢 Low
+- **Summary**: TerminalFeed 红色边框 + Dashboard Overlay 联动
+- **Evidence**: `.project_state/reports/P12-UI_report.json`, build passed
 
-### [x] P11-05: PayFi 资金流动画增强 ✅ PASS
-- **Spec**: `.project_state/plans/P11-05_spec.md`
-- **Type**: `Standard / UI` | **Risk**: 🟢 Low
-- **Summary**: Agent Flow 边动画加速/加亮，营造高频交易网络视觉
-- **Report**: `.project_state/reports/P11-05_report.json`
+### [ ] P12-REHEARSAL: 跑通 Red Slash 演示流程 🚨 ACTIVE
+- **Type**: `Standard / Integration`
+- **depends_on**: P12-UI ✅
+- **Action**:
+  1. Terminal 1: 启动 Watcher (`python -m bots.watcher_bot`)
+  2. Terminal 2: 运行恶意 Bot (`python -m bots.malicious_executor`)
+  3. 验证 Dashboard 红色警报触发
+  4. 截图录屏留存证据
+- **Verify**: 截图 + 日志
 
 ---
 
 ## WAP Task Queue
 
-> **Status**: ✅ Phase 11 Final Sprint - 5/5 Tasks COMPLETED
-> **Parallel OK**: P11-01, P11-02, P11-03, P11-04, P11-05 可并行执行 (无依赖)
-> **Priority**: P11-01 > P11-02 > P11-03 > P11-04 > P11-05 (P0 → P1 → P2)
+> **Status**: 🚀 Phase 12 Operation Red Slash - DISPATCHED
+> **Parallel OK**: P12-UI-01, P12-UI-02 可与 P12-CONTRACT 并行
+> **串行约束**: P12-SRE 依赖 P12-CONTRACT 完成
+> **Priority**: P12-CONTRACT (🔴 Critical) > P12-SRE > P12-UI
 
 ## Deployment Assets
 
@@ -126,9 +129,10 @@
 | Phase 9 | ✅ **COMPLETE** | P9-FIX-01✅ P9-FIX-02✅ P9-FIX-03✅ P9-FIX-04✅ P9-FIX-05✅ P9-DOC-01✅ |
 | Phase 10 | ✅ **COMPLETE** | P10-C03✅ P10-C04✅ P10-S01✅ P10-S03✅ P10-L01✅ |
 | Phase 11 | ✅ **COMPLETE** | P11-01✅ P11-02✅ P11-03✅ P11-04✅ P11-05✅ |
+| Phase 12 | 🚀 **ACTIVE** | P12-CONTRACT✅ P12-SRE✅ P12-UI✅ P12-REHEARSAL[ ] |
 
 ---
 
-*Last Updated: 2025-12-19 10:30 UTC+8 (WAP Status: Phase 11 COMPLETE)*
+*Last Updated: 2025-12-19 14:50 UTC+8 (WAP Status: P12-REHEARSAL DISPATCHED)*
 
 
