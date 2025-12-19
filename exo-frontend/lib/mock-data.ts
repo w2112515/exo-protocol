@@ -41,51 +41,5 @@ export interface Skill {
     last_updated: string;          // ISO 时间戳
 }
 
-/**
- * @internal Type guard for runtime validation of Order objects.
- * Reserved for future use in API layer validation.
- */
-export function isValidOrder(data: unknown): data is Order {
-    if (typeof data !== 'object' || data === null) return false;
-    const order = data as Record<string, unknown>;
-    return (
-        typeof order.order_id === 'string' &&
-        typeof order.skill_id === 'string' &&
-        ['completed', 'failed', 'timeout'].includes(order.status as string) &&
-        typeof order.execution_time_ms === 'number' &&
-        typeof order.created_at === 'string' &&
-        typeof order.result_hash === 'string' &&
-        typeof order.agent_id === 'string' &&
-        ['verified', 'pending', 'challenged'].includes(order.verificationStatus as string)
-    );
-}
-
-/**
- * @internal Type guard for runtime validation of Skill objects.
- * Reserved for future use in API layer validation.
- */
-export function isValidSkill(data: unknown): data is Skill {
-    if (typeof data !== 'object' || data === null) return false;
-    const skill = data as Record<string, unknown>;
-    return (
-        // 基础字段 (必需)
-        typeof skill.skill_id === 'string' &&
-        typeof skill.name === 'string' &&
-        typeof skill.version === 'string' &&
-        typeof skill.category === 'string' &&
-        typeof skill.price_lamports === 'number' &&
-        typeof skill.execution_count === 'number' &&
-        typeof skill.success_rate === 'number' &&
-        // 新增字段 (必需)
-        typeof skill.description === 'string' &&
-        typeof skill.input_schema === 'string' &&
-        typeof skill.output_format === 'string' &&
-        typeof skill.avg_latency_ms === 'number' &&
-        typeof skill.creator_address === 'string' &&
-        typeof skill.royalty_rate === 'number' &&
-        typeof skill.total_royalties_earned === 'number' &&
-        typeof skill.on_chain_verified === 'boolean' &&
-        Array.isArray(skill.tags) &&
-        typeof skill.last_updated === 'string'
-    );
-}
+// RF06: Removed unused type guards (isValidOrder, isValidSkill)
+// If runtime validation is needed in the future, use zod or similar schema validation library

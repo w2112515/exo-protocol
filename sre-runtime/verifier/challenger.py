@@ -88,7 +88,10 @@ async def build_challenge_instruction(
     logger.info(f"Building challenge instruction for order: {order_pubkey}")
     
     # 使用真实 Program ID
-    from ..constants import PROGRAM_ID
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from constants import PROGRAM_ID
     
     return {
         "program_id": PROGRAM_ID,

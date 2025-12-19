@@ -19,3 +19,6 @@ export function GlassCard({ className, hover, children, ...props }: GlassCardPro
         </div>
     );
 }
+
+// RF07: displayName for React DevTools
+GlassCard.displayName = "GlassCard";

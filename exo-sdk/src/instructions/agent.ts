@@ -29,6 +29,8 @@ const INSTRUCTION_DISCRIMINATORS = {
     CREATE_IDENTITY: Buffer.from([0xd1, 0x4a, 0x12, 0x5b, 0x3c, 0x8d, 0x9e, 0x4f]),
     UPDATE_PROFILE: Buffer.from([0xe2, 0x5b, 0x23, 0x6c, 0x4d, 0x9e, 0xaf, 0x50]),
     CLOSE_IDENTITY: Buffer.from([0xf3, 0x6c, 0x34, 0x7d, 0x5e, 0xaf, 0xb0, 0x61]),
+    STAKE_AGENT: Buffer.from([0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6, 0x07, 0x18]),
+    UNSTAKE_AGENT: Buffer.from([0xb2, 0xc3, 0xd4, 0xe5, 0xf6, 0x07, 0x18, 0x29]),
 } as const;
 
 // ============================================================================
@@ -52,6 +54,22 @@ export interface UpdateProfileArgs {
 }
 
 /**
+ * 质押 Agent 指令参数
+ */
+export interface StakeAgentArgs {
+    /** 质押金额 (lamports) */
+    amount: bigint | number;
+}
+
+/**
+ * 取消质押 Agent 指令参数
+ */
+export interface UnstakeAgentArgs {
+    /** 取消质押金额 (lamports) */
+    amount: bigint | number;
+}
+
+/**
  * 创建 Identity 账户上下文
  */
 export interface CreateIdentityAccounts {
@@ -71,6 +89,20 @@ export interface ModifyIdentityAccounts {
     owner: PublicKey;
     /** Agent PDA */
     agentAccount: PublicKey;
+}
+
+/**
+ * 质押/取消质押 Agent 账户上下文
+ */
+export interface StakeAgentAccounts {
+    /** Agent 所有者 (Signer) */
+    owner: PublicKey;
+    /** Agent PDA */
+    agentAccount: PublicKey;
+    /** Agent 质押金库 PDA (可选，自动推导) */
+    agentVault?: PublicKey;
+    /** System Program */
+    systemProgram?: PublicKey;
 }
 
 // ============================================================================
@@ -235,6 +267,124 @@ export function closeIdentity(
     });
 }
 
+/**
+ * Agent 质押金库 PDA 种子
+ */
+export const AGENT_VAULT_SEED = 'agent_vault';
+
+/**
+ * 最低质押金额 (0.1 SOL)
+ */
+export const MIN_STAKE_AMOUNT = 100_000_000;
+
+/**
+ * 推导 Agent 质押金库 PDA
+ */
+export function deriveAgentVaultPda(
+    agentPda: PublicKey,
+    programId: PublicKey = EXO_CORE_PROGRAM_ID
+): { publicKey: PublicKey; bump: number } {
+    const [publicKey, bump] = PublicKey.findProgramAddressSync(
+        [Buffer.from(AGENT_VAULT_SEED), agentPda.toBuffer()],
+        programId
+    );
+    return { publicKey, bump };
+}
+
+/**
+ * 构建质押 Agent 指令
+ *
+ * @remarks
+ * 为 Agent 质押 SOL，激活接单资格
+ * 最低质押 0.1 SOL
+ *
+ * @param args - 质押金额
+ * @param accounts - 账户上下文
+ * @param programId - 程序 ID
+ * @returns TransactionInstruction
+ */
+export function stakeAgent(
+    args: StakeAgentArgs,
+    accounts: StakeAgentAccounts,
+    programId: PublicKey = EXO_CORE_PROGRAM_ID
+): TransactionInstruction {
+    const { publicKey: agentVaultPda } = deriveAgentVaultPda(accounts.agentAccount, programId);
+    const agentVault = accounts.agentVault ?? agentVaultPda;
+
+    // Build instruction data: discriminator + amount (u64 LE)
+    const amountBuffer = Buffer.alloc(8);
+    amountBuffer.writeBigUInt64LE(BigInt(args.amount));
+
+    const data = Buffer.concat([
+        INSTRUCTION_DISCRIMINATORS.STAKE_AGENT,
+        amountBuffer,
+    ]);
+
+    const keys = [
+        { pubkey: accounts.owner, isSigner: true, isWritable: true },
+        { pubkey: accounts.agentAccount, isSigner: false, isWritable: true },
+        { pubkey: agentVault, isSigner: false, isWritable: true },
+        {
+            pubkey: accounts.systemProgram ?? SystemProgram.programId,
+            isSigner: false,
+            isWritable: false,
+        },
+    ];
+
+    return new TransactionInstruction({
+        keys,
+        programId,
+        data,
+    });
+}
+
+/**
+ * 构建取消质押 Agent 指令
+ *
+ * @remarks
+ * 从 Agent 取消质押 SOL
+ * 若剩余质押低于 0.1 SOL，Agent 将被停用
+ *
+ * @param args - 取消质押金额
+ * @param accounts - 账户上下文
+ * @param programId - 程序 ID
+ * @returns TransactionInstruction
+ */
+export function unstakeAgent(
+    args: UnstakeAgentArgs,
+    accounts: StakeAgentAccounts,
+    programId: PublicKey = EXO_CORE_PROGRAM_ID
+): TransactionInstruction {
+    const { publicKey: agentVaultPda } = deriveAgentVaultPda(accounts.agentAccount, programId);
+    const agentVault = accounts.agentVault ?? agentVaultPda;
+
+    // Build instruction data: discriminator + amount (u64 LE)
+    const amountBuffer = Buffer.alloc(8);
+    amountBuffer.writeBigUInt64LE(BigInt(args.amount));
+
+    const data = Buffer.concat([
+        INSTRUCTION_DISCRIMINATORS.UNSTAKE_AGENT,
+        amountBuffer,
+    ]);
+
+    const keys = [
+        { pubkey: accounts.owner, isSigner: true, isWritable: true },
+        { pubkey: accounts.agentAccount, isSigner: false, isWritable: true },
+        { pubkey: agentVault, isSigner: false, isWritable: true },
+        {
+            pubkey: accounts.systemProgram ?? SystemProgram.programId,
+            isSigner: false,
+            isWritable: false,
+        },
+    ];
+
+    return new TransactionInstruction({
+        keys,
+        programId,
+        data,
+    });
+}
+
 // ============================================================================
 // Builder Class
 // ============================================================================
@@ -303,6 +453,28 @@ export class AgentInstructionBuilder {
      */
     close(agentAccount?: PublicKey): TransactionInstruction {
         return closeIdentity(
+            { owner: this.owner, agentAccount: agentAccount ?? this.agentPda },
+            this.programId
+        );
+    }
+
+    /**
+     * 质押 Agent 指令
+     */
+    stake(amount: bigint | number, agentAccount?: PublicKey): TransactionInstruction {
+        return stakeAgent(
+            { amount },
+            { owner: this.owner, agentAccount: agentAccount ?? this.agentPda },
+            this.programId
+        );
+    }
+
+    /**
+     * 取消质押 Agent 指令
+     */
+    unstake(amount: bigint | number, agentAccount?: PublicKey): TransactionInstruction {
+        return unstakeAgent(
+            { amount },
             { owner: this.owner, agentAccount: agentAccount ?? this.agentPda },
             this.programId
         );

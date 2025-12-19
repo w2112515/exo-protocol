@@ -415,6 +415,116 @@ Windows platform-tools 存在两个持续性问题：
 
 ---
 
+### ADR-014: Phase 14 Champion Sprint - 冠军冲刺策略
+
+**Date**: 2024-12-19
+**Status**: Accepted
+**Trigger**: 用户请求实现 4 个高冲击力功能冲刺冠军
+
+**Context**:
+黑客松 Demo 已就绪，但与冠军级项目仍有差距：
+- SRE 执行器为模拟脚本，非真实 AI
+- Agent 无质押机制，作弊无经济惩罚
+- 无 ZK Compression 技术展示
+
+**Strategic Analysis**:
+根据 `docs/Solana 黑客松参赛战略报告.md` §2.2.2 分析：
+- **蓝海二: AI Agent 经济体** 需要:
+  - Agent 信誉与身份协议 (ZK Compression)
+  - 机器人资源交易市场 (PayFi 微支付)
+  - 信任机制 (Staking/Slashing)
+
+**Decision**:
+实施 Phase 14 "Operation Champion" 包含 4 个 Critical 任务：
+
+| 任务 | 冲击力 | 技术亮点 |
+|------|--------|----------|
+| P14-C01 | ⭐⭐⭐⭐⭐ | 真实 AI 执行 (Claude API) |
+| P14-C02 | ⭐⭐⭐⭐ | Agent Staking + Slash |
+| P14-C03 | ⭐⭐⭐ | CLI 极客工具 |
+| P14-C04 | ⭐⭐⭐⭐⭐ | ZK Compression (OPOS) |
+
+**Implementation Strategy**:
+1. **并行执行**: P14-C01 + P14-C02 无依赖，可并行
+2. **串行执行**: P14-C03/C04 依赖 P14-C02
+3. **降级方案**: 
+   - P14-C01: 无 API Key 时提供 Mock 模式
+   - P14-C04: Light Protocol 不可用时降级为本地存储
+
+**Risk Assessment**:
+| 风险 | 缓解 |
+|------|------|
+| API Key 未配置 | 环境变量 + Mock 降级 |
+| 合约升级兼容性 | AgentIdentity V2 使用新 PDA |
+| 工时超预估 | P14-C04 可拆分子任务 |
+
+**Consequences**:
+- ✅ OPOS 得分最大化 (ZK Compression)
+- ✅ 信任机制完善 (Staking/Slash)
+- ✅ 真实产品感 (非 Mock 执行)
+- ⚠️ 需要用户提供 API Key
+- ⚠️ 合约需重新部署
+
+**Spec Document**: `.project_state/plans/P14-CHAMPION_spec.md`
+
+---
+
+### ADR-015: AgentIdentity V2 状态迁移策略
+
+**Date**: 2024-12-19
+**Status**: Accepted
+**Trigger**: P14-C02 需要扩展 AgentIdentity 结构
+
+**Context**:
+现有 `AgentIdentity` 结构:
+```rust
+pub struct AgentIdentity {
+    pub owner: Pubkey,
+    pub tier: u8,
+    pub total_earnings: u64,
+    pub total_tasks: u64,
+    pub reputation_score: u16,
+    pub created_at: i64,
+    pub bump: u8,
+}
+// LEN = 68 bytes
+```
+
+需新增字段:
+- `staked_amount: u64` (质押金额)
+- `slashed_count: u8` (被罚次数)
+- `is_active: bool` (是否激活)
+
+**Options Evaluated**:
+| 选项 | 方案 | 风险 |
+|------|------|------|
+| A | 直接扩展现有结构 | 现有账户空间不足 |
+| B ⭐ | 新 PDA 种子 `["agent_v2", owner]` | 需迁移数据 |
+| C | 独立 StakingAccount | 增加账户复杂度 |
+
+**Decision**: 选项 B - 新 PDA 种子
+
+**Rationale**:
+1. 黑客松环境，无生产数据迁移压力
+2. 干净的状态分离，避免兼容性问题
+3. 可保留 V1 作为历史记录
+
+**Implementation**:
+```rust
+pub const AGENT_V2_SEED: &[u8] = b"agent_v2";
+
+// V1 账户保留，V2 为新账户
+// 用户需调用 migrate_agent() 或直接 create_agent_v2()
+```
+
+**Consequences**:
+- ✅ 无兼容性风险
+- ✅ 清晰的版本分离
+- ⚠️ 现有测试需更新
+- ⚠️ SDK 需支持 V2
+
+---
+
 ## Archived Tasks
 
 ### [ARCHIVED] P3D-FIX: Frontend Bugfix (2024-12-16)

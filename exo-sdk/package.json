@@ -51,14 +51,16 @@
         "@types/node": "^22.10.1",
         "ts-node": "^10.9.2",
         "tsup": "^8.3.5",
-        "typescript": "^5.7.2",
         "tsx": "^4.19.0",
+        "typescript": "^5.7.2",
         "vitest": "^2.1.8"
     },
     "engines": {
         "node": ">=18.0.0"
     },
     "dependencies": {
+        "@lightprotocol/compressed-token": "^0.22.0",
+        "@lightprotocol/stateless.js": "^0.22.0",
         "bn.js": "^5.2.2"
     }
 }

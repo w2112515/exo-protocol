@@ -24,6 +24,9 @@ class CommitResult:
     execution_time_ms: int
     status: str  # "success" | "failed"
     error_message: Optional[str] = None
+    execution_mode: str = "sandbox"  # "sandbox" | "ai"
+    model_used: Optional[str] = None
+    tokens_used: int = 0
 
 
 def compute_result_hash(result: Dict[str, Any]) -> str:
@@ -45,13 +48,14 @@ async def commit_result(
     order_id: str,
     skill_package: dict,
     input_data: dict,
+    execution_mode: str = "sandbox",  # "sandbox" | "ai"
     sandbox_config: Optional[SandboxConfig] = None
 ) -> CommitResult:
     """
     执行 Skill 并提交结果
     
     流程:
-    1. 调用 sandbox 执行 skill
+    1. 根据 execution_mode 选择执行方式 (sandbox 或 ai)
     2. 计算结果哈希
     3. 调用 DA 存储结果
     4. 返回 CommitResult (供链上提交使用)
@@ -60,16 +64,33 @@ async def commit_result(
         order_id: 订单 ID
         skill_package: Skill 包配置
         input_data: 输入数据
-        sandbox_config: 沙盒配置 (可选)
+        execution_mode: 执行模式 "sandbox" 或 "ai"
+        sandbox_config: 沙盒配置 (仅 sandbox 模式)
         
     Returns:
         CommitResult: 提交结果数据结构
     """
     start_time = time.perf_counter()
+    model_used = None
+    tokens_used = 0
     
     try:
-        # 1. 调用 sandbox 执行 skill (同步调用)
-        result = execute_in_sandbox(skill_package, input_data, sandbox_config)
+        # 1. 根据模式选择执行方式
+        if execution_mode == "ai":
+            from executor.ai_executor import AIExecutor
+            executor = AIExecutor()
+            ai_result = await executor.execute_skill(skill_package, input_data)
+            await executor.close()
+            
+            if not ai_result.success:
+                raise RuntimeError(ai_result.error_message or "AI execution failed")
+            
+            result = ai_result.output
+            model_used = ai_result.model_used
+            tokens_used = ai_result.tokens_used
+        else:
+            # 默认使用 sandbox 模式
+            result = execute_in_sandbox(skill_package, input_data, sandbox_config)
         
         # 2. 计算结果哈希
         result_hash = compute_result_hash(result)
@@ -87,6 +108,9 @@ async def commit_result(
             execution_time_ms=execution_time_ms,
             status="success",
             error_message=None,
+            execution_mode=execution_mode,
+            model_used=model_used,
+            tokens_used=tokens_used,
         )
         
     except Exception as e:
@@ -100,4 +124,7 @@ async def commit_result(
             execution_time_ms=execution_time_ms,
             status="failed",
             error_message=str(e),
+            execution_mode=execution_mode,
+            model_used=model_used,
+            tokens_used=tokens_used,
         )

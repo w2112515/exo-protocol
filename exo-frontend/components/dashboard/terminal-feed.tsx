@@ -3,7 +3,7 @@
 // P4-05: Helius WebSocket 实时日志集成
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useHeliusLogs, type ConnectionStatus, type LogMessage } from '@/hooks/use-helius-logs';
@@ -166,25 +166,35 @@ export function TerminalFeed({
     // 检测是否处于 Alert 模式 (Disputed / Challenge)
     const [isAlertMode, setIsAlertMode] = useState(false);
 
+    // CR04: Use ref to store callback, avoiding stale closure and dependency issues
+    const onAlertChangeRef = useRef(onAlertChange);
+    useEffect(() => {
+        onAlertChangeRef.current = onAlertChange;
+    }, [onAlertChange]);
+
+    // Stable callback for alert changes
+    const triggerAlert = useCallback((alert: boolean) => {
+        setIsAlertMode(alert);
+        if (alert) {
+            document.body.setAttribute('data-alert', 'true');
+        } else {
+            document.body.removeAttribute('data-alert');
+        }
+        onAlertChangeRef.current?.(alert);
+    }, []);
+
     useEffect(() => {
         if (!showLiveLogs) return;
 
-        // 检查是否有 Disputed 事件
-        const hasDispute = parsedLogs.some(item => 
-            item.parsed?.eventType === EventType.ESCROW_DISPUTED
+        // 检查是否有 Disputed 事件 (check logs directly, not parsedLogs to avoid recompute)
+        const hasDispute = logs.some(log => 
+            log.logs.some(l => l.includes('Disputed') || l.includes('DISPUTE'))
         );
 
-        if (hasDispute) {
-            setIsAlertMode(true);
-            // 触发全局 data-alert 状态 (通过 DOM 属性，供父组件感知)
-            document.body.setAttribute('data-alert', 'true');
-            onAlertChange?.(true);
-        } else {
-            // 3秒后自动清除 (模拟短暂警报，或保持直到刷新)
-            // 这里为了演示效果，保持常亮直到手动清除或刷新
-            // setIsAlertMode(false);
+        if (hasDispute && !isAlertMode) {
+            triggerAlert(true);
         }
-    }, [parsedLogs, showLiveLogs]);
+    }, [logs, showLiveLogs, isAlertMode, triggerAlert]);
 
     return (
         <div className={cn(
@@ -212,6 +222,19 @@ export function TerminalFeed({
 
                 {/* 切换按钮 */}
                 <div className="flex items-center gap-2">
+                    {/* Demo Alert Button - 用于视频演示 */}
+                    <button
+                        onClick={() => triggerAlert(!isAlertMode)}
+                        className={cn(
+                            'px-2 py-0.5 rounded text-xs transition-colors',
+                            isAlertMode
+                                ? 'bg-red-500/30 text-red-400 animate-pulse'
+                                : 'bg-muted/50 hover:bg-red-500/20 hover:text-red-400'
+                        )}
+                        title="Demo: Toggle Red Alert"
+                    >
+                        {isAlertMode ? '🚨 ALERT' : '⚠️ Demo'}
+                    </button>
                     {hasApiKey && (
                         <button
                             onClick={() => setShowLiveLogs(!showLiveLogs)}
@@ -356,29 +379,7 @@ export function TerminalFeed({
 
             {/* 底部淡出遮罩 */}
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-
-            {/* 扫描线 CSS 动画 */}
-            <style jsx>{`
-        .scan-line {
-          animation: scan-line 3s ease-in-out infinite;
-        }
-        @keyframes scan-line {
-          0% {
-            top: -2px;
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            top: 100%;
-            opacity: 0;
-          }
-        }
-      `}</style>
+            {/* RF04: scan-line animation moved to globals.css */}
         </div>
     );
 }

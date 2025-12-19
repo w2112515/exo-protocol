@@ -11,6 +11,7 @@ import { skillCommand } from './commands/skill.js';
 import { orderCommand } from './commands/order.js';
 import { configCommand } from './commands/config.js';
 import { infoCommand } from './commands/info.js';
+import { agentCommand } from './commands/agent.js';
 
 const program = new Command();
 
@@ -34,6 +35,7 @@ program.addCommand(skillCommand);
 program.addCommand(orderCommand);
 program.addCommand(configCommand);
 program.addCommand(infoCommand);
+program.addCommand(agentCommand);
 
 // Default action when no command is provided
 program.action(() => {

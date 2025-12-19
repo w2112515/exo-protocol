@@ -1,5 +1,18 @@
 {
-	"dependencies": {
-		"@solana/web3.js": "^1.98.4"
-	}
+  "name": "exo-protocol",
+  "private": true,
+  "scripts": {
+    "demo": "npx tsx scripts/run-demo.ts",
+    "demo:dry": "npx tsx scripts/run-demo.ts --dry-run",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dev": "pnpm -r dev"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
 }

@@ -10,6 +10,7 @@
 // Types
 // ============================================================================
 export * from './types';
+export * from './types/compressed';
 
 // ============================================================================
 // Constants
@@ -27,6 +28,7 @@ export * from './pda';
 export * from './instructions/skill';
 export * from './instructions/agent';
 export * from './instructions/escrow';
+export { ZKAgentHistory } from './instructions/zk';
 
 // ============================================================================
 // Client

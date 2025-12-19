@@ -78,9 +78,13 @@ pub fn create_agent(ctx: Context<CreateAgent>) -> Result<()> {
     agent.reputation_score = DEFAULT_REPUTATION;
     agent.created_at = clock.unix_timestamp;
     agent.bump = ctx.bumps.agent;
+    // V2 新增字段初始化
+    agent.staked_amount = 0;
+    agent.slashed_count = 0;
+    agent.is_active = false;  // 需质押后激活
 
     msg!("Agent created for owner: {:?}", agent.owner);
-    msg!("Initial tier: {}, reputation: {}", agent.tier, agent.reputation_score);
+    msg!("Initial tier: {}, reputation: {}, active: false", agent.tier, agent.reputation_score);
 
     Ok(())
 }

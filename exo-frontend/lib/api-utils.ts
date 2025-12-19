@@ -1,10 +1,6 @@
 // Shared API utilities for Solana Actions/Blinks
 // Reference: https://github.com/solana-developers/solana-actions
-
-// Solana Devnet Chain ID (CAIP-2 format)
-// Mainnet: solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
-// Devnet:  solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
-const SOLANA_DEVNET_CHAIN = 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1';
+import { SOLANA_DEVNET_CHAIN } from './constants';
 
 export const ACTIONS_CORS_HEADERS: HeadersInit = {
     'Access-Control-Allow-Origin': '*',

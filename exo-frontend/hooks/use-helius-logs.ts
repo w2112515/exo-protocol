@@ -55,13 +55,7 @@ export interface UseHeliusLogsReturn {
 // ============================================================================
 // Constants
 // ============================================================================
-
-const NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
-const HELIUS_WS_URL = (NETWORK === 'mainnet-beta' || NETWORK === 'mainnet')
-    ? 'wss://atlas-mainnet.helius-rpc.com'
-    : 'wss://atlas-devnet.helius-rpc.com';
-const RECONNECT_DELAY = 3000; // 3 seconds
-const MAX_RECONNECT_ATTEMPTS = 5;
+import { HELIUS_WS_URL, WS_RECONNECT_DELAY, WS_MAX_RECONNECT_ATTEMPTS } from '@/lib/constants';
 
 // ============================================================================
 // Hook
@@ -177,10 +171,10 @@ export function useHeliusLogs(options: UseHeliusLogsOptions = {}): UseHeliusLogs
 
                 // Auto-reconnect if not intentionally closed
                 if (enabled && event.code !== 1000) {
-                    if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+                    if (reconnectAttemptsRef.current < WS_MAX_RECONNECT_ATTEMPTS) {
                         reconnectAttemptsRef.current++;
-                        console.log(`[Helius] Reconnecting in ${RECONNECT_DELAY}ms (attempt ${reconnectAttemptsRef.current})`);
-                        reconnectTimeoutRef.current = setTimeout(connect, RECONNECT_DELAY);
+                        console.log(`[Helius] Reconnecting in ${WS_RECONNECT_DELAY}ms (attempt ${reconnectAttemptsRef.current})`);
+                        reconnectTimeoutRef.current = setTimeout(connect, WS_RECONNECT_DELAY);
                     } else {
                         setError('Max reconnection attempts reached');
                         setStatus('error');

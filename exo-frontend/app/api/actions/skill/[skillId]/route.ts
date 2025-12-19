@@ -1,11 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ACTIONS_CORS_HEADERS } from '@/lib/api-utils';
 import { Skill } from '@/lib/mock-data';
+import {
+    Connection,
+    PublicKey,
+    SystemProgram,
+    Transaction,
+    LAMPORTS_PER_SOL,
+} from '@solana/web3.js';
 
 export const runtime = 'edge';
 
-// 使用从 mock-data.ts 导入的 Skill 类型
-type MockSkill = Skill;
+// Protocol Escrow address for skill payments
+const PROTOCOL_ESCROW = new PublicKey('Gav2g7qmk5FyUntJHzDBnb8FGRcuvZUbF1EiLPzcMFjB');
+const DEVNET_RPC = 'https://api.devnet.solana.com';
+const DEFAULT_PRICE_LAMPORTS = 0.1 * LAMPORTS_PER_SOL; // 0.1 SOL default
+
+// Inline mock skills data (Edge Runtime compatible - no fetch self-loop)
+const MOCK_SKILLS: Skill[] = [
+    {
+        skill_id: 'skill-code-reviewer-v1',
+        name: 'code-reviewer',
+        version: '3.1.17',
+        category: 'dev-tools',
+        price_lamports: 100000000, // 0.1 SOL
+        execution_count: 9684,
+        success_rate: 0.9992,
+        description: 'AI-powered code review that analyzes code quality, security vulnerabilities, and suggests improvements.',
+        input_schema: '{ code: string, language: string }',
+        output_format: '{ issues: Issue[], suggestions: string[], score: number }',
+        avg_latency_ms: 1250,
+        creator_address: 'Gav2g7qmk5FyUntJHzDBnb8FGRcuvZUbF1EiLPzcMFjB',
+        royalty_rate: 0.1,
+        total_royalties_earned: 2797707,
+        on_chain_verified: true,
+        tags: ['code-quality', 'security', 'gpt-4'],
+        last_updated: '2025-12-18T10:30:00Z',
+    },
+    {
+        skill_id: 'skill-translation-engine-v1',
+        name: 'translation-engine',
+        version: '1.1.6',
+        category: 'nlp',
+        price_lamports: 50000000, // 0.05 SOL
+        execution_count: 8289,
+        success_rate: 0.9987,
+        description: 'High-accuracy neural machine translation supporting 50+ languages.',
+        input_schema: '{ text: string, target_lang: string }',
+        output_format: '{ translated_text: string, confidence: number }',
+        avg_latency_ms: 450,
+        creator_address: '8Fw7g3kL9',
+        royalty_rate: 0.1,
+        total_royalties_earned: 1274848,
+        on_chain_verified: true,
+        tags: ['translation', 'multilingual'],
+        last_updated: '2025-12-17T14:20:00Z',
+    },
+];
 
 export async function OPTIONS(request: NextRequest) {
     return new NextResponse(null, {
@@ -14,15 +65,9 @@ export async function OPTIONS(request: NextRequest) {
     });
 }
 
-// Helper to load mock skills via HTTP (works in Edge/Serverless)
-async function loadMockSkills(origin: string): Promise<MockSkill[]> {
-    try {
-        const response = await fetch(`${origin}/mock/mock_skills.json`);
-        if (!response.ok) return [];
-        return response.json();
-    } catch {
-        return [];
-    }
+// Helper to find skill from inline mock data
+function findSkill(skillId: string): Skill | undefined {
+    return MOCK_SKILLS.find(s => s.skill_id === skillId);
 }
 
 export async function GET(
@@ -36,9 +81,8 @@ export async function GET(
         requestUrl.origin
     ).toString();
 
-    // Load mock data and find skill
-    const skills = await loadMockSkills(requestUrl.origin);
-    const skill = skills.find(s => s.skill_id === skillId);
+    // Find skill from inline mock data (CR02: no fetch self-loop)
+    const skill = findSkill(skillId);
 
     const title = skill ? skill.name : `Skill: ${skillId}`;
     const description = skill
@@ -90,14 +134,50 @@ export async function POST(
             });
         }
 
-        // Mock Transaction (Base64 of a dummy transaction)
-        // This is a placeholder needed for the response structure. 
-        // In a real scenario, we would build a real transaction here.
-        const mockTransaction = "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        // Validate account is a valid Solana public key
+        let userPubkey: PublicKey;
+        try {
+            userPubkey = new PublicKey(account);
+        } catch {
+            return new NextResponse('Invalid Solana account address', {
+                status: 400,
+                headers: ACTIONS_CORS_HEADERS,
+            });
+        }
 
+        // CR01: Build real Solana transfer transaction
+        const skill = findSkill(skillId);
+        const priceLamports = skill?.price_lamports ?? DEFAULT_PRICE_LAMPORTS;
+
+        // Connect to devnet to get recent blockhash
+        const connection = new Connection(DEVNET_RPC, 'confirmed');
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        // Create transfer instruction: User -> Protocol Escrow
+        const transferInstruction = SystemProgram.transfer({
+            fromPubkey: userPubkey,
+            toPubkey: PROTOCOL_ESCROW,
+            lamports: priceLamports,
+        });
+
+        // Build transaction
+        const transaction = new Transaction({
+            blockhash,
+            lastValidBlockHeight,
+            feePayer: userPubkey,
+        }).add(transferInstruction);
+
+        // Serialize and encode to base64
+        const serializedTx = transaction.serialize({
+            requireAllSignatures: false,
+            verifySignatures: false,
+        });
+        const base64Tx = Buffer.from(serializedTx).toString('base64');
+
+        const priceSOL = (priceLamports / LAMPORTS_PER_SOL).toFixed(4);
         const payload = {
-            transaction: mockTransaction,
-            message: `Successfully purchased skill: ${skillId}`,
+            transaction: base64Tx,
+            message: `Purchase skill "${skill?.name ?? skillId}" for ${priceSOL} SOL`,
         };
 
         return NextResponse.json(payload, {

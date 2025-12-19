@@ -1,0 +1,57 @@
+{
+  "task_id": "P12-REHEARSAL",
+  "status": "partial",
+  "execution_mode": "Local-Mock",
+  "timestamp": "2025-12-19T15:00:00+08:00",
+  "execution_metrics": {
+    "duration_seconds": 600,
+    "components_tested": 4
+  },
+  "verification_results": {
+    "frontend_dev_server": {
+      "status": "pass",
+      "url": "http://localhost:3000",
+      "startup_time_ms": 987
+    },
+    "watcher_bot": {
+      "status": "pass",
+      "detections": 4,
+      "challenges_submitted": 4,
+      "evidence": "Hash mismatch detected, challenge_tx_demo_ord submitted"
+    },
+    "malicious_executor": {
+      "status": "pass",
+      "fake_hash": "ee51b4492e1d5e4e...",
+      "target_order": "demo_order_pubkey"
+    },
+    "dashboard_alert": {
+      "status": "partial",
+      "reason": "Mock mode - requires Live Helius WebSocket for real ESCROW_DISPUTED events",
+      "ui_components_ready": true
+    }
+  },
+  "core_flow_validated": {
+    "malicious_submission": true,
+    "hash_mismatch_detection": true,
+    "challenge_transaction": true,
+    "red_alert_ui_code": true
+  },
+  "fixes_applied": [
+    {
+      "file": "verifier/challenger.py",
+      "issue": "ImportError: attempted relative import beyond top-level package",
+      "fix": "Changed from relative import to absolute import for constants.py"
+    },
+    {
+      "file": "requirements.txt dependencies",
+      "issue": "ModuleNotFoundError: No module named 'solana'",
+      "fix": "Installed solana==0.32.0 anchorpy==0.19.1"
+    }
+  ],
+  "next_steps": [
+    "Deploy to Vercel (already pushed, auto-deploying)",
+    "For full demo: Use real Devnet transactions to trigger ESCROW_DISPUTED event",
+    "Record 3-min video showing the attack-detect-challenge flow"
+  ],
+  "note_to_csa": "Core SRE challenge mechanism validated in Mock mode. Red Alert UI is ready but needs real chain events for full visual demo."
+}

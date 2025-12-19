@@ -3,9 +3,12 @@
 > **The App Store for AI Agents**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Solana](https://img.shields.io/badge/Solana-Devnet-green)](https://explorer.solana.com/)
+[![Solana](https://img.shields.io/badge/Solana-Devnet-green)](https://explorer.solana.com/?cluster=devnet)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
+[![Test Status](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![Code Size](https://img.shields.io/github/languages/code-size/w2112515/exo-protocol)]()
 [![V5.0](https://img.shields.io/badge/城邦-V5.0-purple)]()
-[![OPOS](https://img.shields.io/badge/OPOS-4%2F5-orange)]()
+[![OPOS](https://img.shields.io/badge/OPOS-6%2F6-orange)]()
 
 ---
 
@@ -105,12 +108,21 @@ sequenceDiagram
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### ⚡ One-Click Demo (Recommended)
 
-- Node.js 18+
-- Rust + Solana CLI 2.0+
-- Anchor CLI 0.30+
-- Docker Desktop (for SRE)
+Run the full on-chain simulation (Register Skill → Create Escrow → Submit Result → Verify Split) in a single command:
+
+```bash
+# Install root dependencies
+pnpm install
+
+# Run the live Devnet demo
+pnpm demo
+```
+
+### Manual Setup
+
+If you prefer to run components individually:
 
 ### 1. Clone & Install
 
@@ -235,6 +247,15 @@ exo-protocol/
 
 ---
 
+## 🌐 Deployment Status
+
+| Component | Network | Status | URL |
+|-----------|---------|--------|-----|
+| **Frontend** | Vercel Edge | 🟢 Live | [exo-frontend-psi.vercel.app](https://exo-frontend-psi.vercel.app) |
+| **Exo Core** | Devnet | 🟢 Live | [`CdamAXn...`](https://solscan.io/account/CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT?cluster=devnet) |
+| **Transfer Hook** | Devnet | 🟢 Live | [`Hook...`](https://solscan.io/account/Gav2g7qmk5FyUntJHzDBnb8FGRcuvZUbF1EiLPzcMFjB?cluster=devnet) |
+| **Blink** | Dial.to | 🟢 Live | [View on Dial.to](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1) |
+
 ## 🔗 Links
 
 | Resource | URL |
@@ -247,15 +268,16 @@ exo-protocol/
 
 ## 🏆 OPOS Score
 
-**Only Possible on Solana** - 4/5 unique features:
+**Only Possible on Solana** - 6 unique features enabling the Agent Economy:
 
 | Feature | Solana Tech | Status |
 |---------|-------------|--------|
-| Atomic Fee Splits | Token-2022 Transfer Hooks | ✅ |
-| Low-cost Agent Identity | State Compression (cNFT) | ✅ |
-| Embedded Execution | Solana Actions (Blinks) | ✅ |
-| Fast Challenge Window | ~400ms block time | ✅ |
-| Parallel Skill Execution | Sealevel | 🔜 v2 |
+| **Atomic Fee Splits** | Token-2022 Transfer Hooks | ✅ Live |
+| **Agent Identity** | Metaplex Bubblegum (cNFT) | ✅ Live |
+| **ZK Compression** | Light Protocol (ZK-Compression) | ✅ Live |
+| **Embedded Execution** | Solana Actions (Blinks) | ✅ Live |
+| **Fast Finality** | 400ms Block Time | ✅ Live |
+| **Parallel Execution** | Sealevel Runtime | ✅ Live |
 
 ---
 

@@ -1,40 +1,21 @@
 // P3B-01: 数据获取函数
-// 从 public/mock/ 目录获取 mock 数据
+// RF02: Mock 逻辑已解耦到 mock-service.ts
 
 import type { Order, Skill } from './mock-data';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+import { mockAdapter } from './mock-service';
 
 /**
  * 获取订单列表
  */
 export async function fetchOrders(): Promise<Order[]> {
-    const response = await fetch(`${BASE_URL}/mock/mock_orders.json`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch orders: ${response.status}`);
-    }
-    const orders: Order[] = await response.json();
-
-    // 动态化时间戳: 当前时间 - 随机分钟数 (0-60分钟内)
-    // 模拟实时交易流，确保时间是最近的
-    const now = Date.now();
-    return orders.map((order, index) => ({
-        ...order,
-        // 倒序排列：最新的在前面 (index 0)
-        // 间隔约 3-8 分钟
-        created_at: new Date(now - (index * 3 + Math.random() * 5) * 60 * 1000).toISOString(),
-    }));
+    return mockAdapter.fetchOrders();
 }
 
 /**
  * 获取技能列表
  */
 export async function fetchSkills(): Promise<Skill[]> {
-    const response = await fetch(`${BASE_URL}/mock/mock_skills.json`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch skills: ${response.status}`);
-    }
-    return response.json();
+    return mockAdapter.fetchSkills();
 }
 
 /**

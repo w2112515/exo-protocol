@@ -4,9 +4,19 @@ import { SkillBlinkCard } from "@/components/blinks/skill-blink-card";
 import { Header } from "@/components/layout/header";
 import { useSkills } from "@/hooks/use-skills";
 import { Zap, Terminal } from "lucide-react";
+import { useState, useMemo } from "react";
 
 export default function BlinksPage() {
     const { data: skills = [], isLoading: loading } = useSkills();
+    const [visibleCount, setVisibleCount] = useState(12);
+
+    const visibleSkills = useMemo(() => {
+        return skills.slice(0, visibleCount);
+    }, [skills, visibleCount]);
+
+    const handleLoadMore = () => {
+        setVisibleCount((prev) => prev + 12);
+    };
 
     return (
         <>
@@ -33,11 +43,10 @@ export default function BlinksPage() {
                 {/* Content */}
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     {loading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <div className="flex items-center gap-3 text-white/50">
-                                <Terminal className="w-5 h-5 animate-pulse" />
-                                <span className="font-mono text-sm">Loading skills...</span>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {[...Array(8)].map((_, i) => (
+                                <SkillCardSkeleton key={i} />
+                            ))}
                         </div>
                     ) : skills.length === 0 ? (
                         <div className="flex items-center justify-center py-20">

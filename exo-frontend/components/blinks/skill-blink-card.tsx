@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Skill } from "@/lib/mock-data";
+import { toast } from "sonner";
 import { 
   Terminal, MessageSquareText, BarChart3, Eye, Database, Briefcase, BrainCircuit, // Categories
   User, CheckCircle2, TrendingUp, Zap, Rocket // UI Elements
@@ -44,18 +45,33 @@ interface SkillBlinkCardProps {
 
 export function SkillBlinkCard({ skill }: SkillBlinkCardProps) {
   const [copied, setCopied] = useState(false);
+  // CR05: Use state for origin to avoid SSR hydration mismatch
+  const [origin, setOrigin] = useState('');
   const IconComponent = CATEGORY_ICONS[skill.category] || CATEGORY_ICONS.default;
+
+  useEffect(() => {
+    // Set origin only on client side
+    setOrigin(window.location.origin);
+  }, []);
 
   const handleCopy = async () => {
     try {
-        const url = `${window.location.origin}/api/actions/skill/${skill.skill_id}`;
+        const url = `${origin}/api/actions/skill/${skill.skill_id}`;
         await navigator.clipboard.writeText(url);
         setCopied(true);
+        toast.success("Blink URL copied to clipboard", {
+            description: "Ready to paste into any Solana Actions compatible interface."
+        });
         setTimeout(() => setCopied(false), 2000);
     } catch (err) {
         console.error('Failed to copy to clipboard:', err);
+        toast.error("Failed to copy URL");
     }
   };
+
+  // Build Blink URL (safe for SSR - empty string until hydrated)
+  const blinkActionUrl = origin ? `${origin}/api/actions/skill/${skill.skill_id}` : '';
+  const dialToUrl = blinkActionUrl ? `https://dial.to/?action=solana-action:${encodeURIComponent(blinkActionUrl)}&cluster=devnet` : '#';
 
   return (
     <GlassCard className="flex flex-col relative overflow-hidden group border-white/5 bg-black/40 backdrop-blur-md h-full">
@@ -185,7 +201,7 @@ export function SkillBlinkCard({ skill }: SkillBlinkCardProps) {
            </button>
            
            <a
-               href={`https://dial.to/?action=solana-action:${encodeURIComponent(typeof window !== 'undefined' ? `${window.location.origin}/api/actions/skill/${skill.skill_id}` : '')}&cluster=devnet`}
+               href={dialToUrl}
                target="_blank"
                rel="noopener noreferrer"
                className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-white/50 hover:bg-white/10 hover:text-white transition-all"

@@ -2,29 +2,37 @@
 // 集成: TerminalFeed, AgentFlowGraph, KPICard
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { cn } from "@/lib/utils";
 import { BentoGrid } from "@/components/layout/bento-grid";
 import { GlassCard } from "@/components/ui/glass-card";
 import { TerminalFeed } from "@/components/dashboard/terminal-feed";
 import { AgentFlowGraph } from "@/components/dashboard/agent-flow-graph";
 import { KPICard } from "@/components/dashboard/kpi-card";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { useOrders } from "@/hooks/use-orders";
 import { useSkills } from "@/hooks/use-skills";
 import { calculateKPIs } from "@/lib/api";
 import { Header } from "@/components/layout/header";
-
-// ID 来自 anchor/programs/exo-core/src/lib.rs
-const EXO_PROGRAM_ID = "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT";
+import { EXO_CORE_PROGRAM_ID } from "@/lib/constants";
 
 export default function DashboardPage() {
+    const queryClient = useQueryClient();
     const { data: orders = [], isLoading: ordersLoading, isError: ordersError } = useOrders();
     const { data: skills = [], isLoading: skillsLoading, isError: skillsError } = useSkills();
     
     // Alert mode state for Red Slash demo
     const [isAlertMode, setIsAlertMode] = useState(false);
 
-    const kpis = calculateKPIs(orders, skills);
+    // IM01: Memoize KPI calculation to prevent blocking main thread
+    const kpis = useMemo(() => calculateKPIs(orders, skills), [orders, skills]);
+
+    // IM01: Retry handler for error state
+    const handleRetry = () => {
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
+        queryClient.invalidateQueries({ queryKey: ['skills'] });
+    };
     const isLoading = ordersLoading || skillsLoading;
     const isError = ordersError || skillsError;
 
@@ -47,10 +55,18 @@ export default function DashboardPage() {
                     <p className="text-muted-foreground text-sm">Welcome back, Agent.</p>
                 </div>
 
-                {isError ? (
+                {isLoading ? (
+                    <DashboardSkeleton />
+                ) : isError ? (
                 <div className="max-w-7xl mx-auto p-8">
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 text-center">
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 text-center space-y-4">
                         <p className="text-red-400 font-mono">Failed to load data. Please try again later.</p>
+                        <button
+                            onClick={handleRetry}
+                            className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 font-mono text-sm transition-colors"
+                        >
+                            Retry
+                        </button>
                     </div>
                 </div>
             ) : (
@@ -115,7 +131,7 @@ export default function DashboardPage() {
                             <TerminalFeed 
                                 orders={orders} 
                                 className="max-h-[420px] overflow-y-auto pr-2" 
-                                programId={EXO_PROGRAM_ID}
+                                programId={EXO_CORE_PROGRAM_ID}
                                 onAlertChange={setIsAlertMode}
                             />
                         )}

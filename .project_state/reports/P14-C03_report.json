@@ -1,0 +1,73 @@
+{
+  "task_id": "P14-C03",
+  "status": "success",
+  "execution_mode": "Serial-Batching",
+  "timestamp": "2024-12-19T19:50:00+08:00",
+  "execution_metrics": {
+    "duration_seconds": 180,
+    "retry_count": 0,
+    "files_touched": 4
+  },
+  "modified_files": [
+    "exo-sdk/src/instructions/agent.ts",
+    "exo-sdk/src/client.ts",
+    "exo-cli/src/commands/agent.ts",
+    "exo-cli/src/index.ts"
+  ],
+  "verification": {
+    "command": "cd exo-cli && pnpm build && node dist/index.js agent --help",
+    "exit_code": 0,
+    "output_snippet": "Usage: exo agent [options] [command]\n\nManage Agent identity and staking\n\nCommands:\n  create [options]            Create a new Agent identity\n  stake [options] <amount>    Stake SOL to activate Agent (minimum 0.1 SOL)\n  unstake [options] <amount>  Unstake SOL from Agent\n  status [options] [address]  View Agent status and staking info\n  list [options]              List all registered Agents",
+    "has_evidence": true,
+    "evidence_path": null
+  },
+  "diagnostics_log": [],
+  "deliverables": {
+    "sdk_instructions": {
+      "file": "exo-sdk/src/instructions/agent.ts",
+      "changes": [
+        "Added STAKE_AGENT / UNSTAKE_AGENT discriminators",
+        "Added StakeAgentArgs / UnstakeAgentArgs types",
+        "Added StakeAgentAccounts interface",
+        "Added deriveAgentVaultPda() helper",
+        "Added stakeAgent() instruction builder",
+        "Added unstakeAgent() instruction builder",
+        "Added stake() / unstake() to AgentInstructionBuilder class"
+      ]
+    },
+    "sdk_client": {
+      "file": "exo-sdk/src/client.ts",
+      "changes": [
+        "Added stake(lamports) method to AgentNamespace",
+        "Added unstake(lamports) method to AgentNamespace",
+        "Added getStatus(address?) method to AgentNamespace",
+        "Added list(options?) method to AgentNamespace",
+        "Added AgentStatus interface export"
+      ]
+    },
+    "cli_commands": {
+      "file": "exo-cli/src/commands/agent.ts",
+      "commands": [
+        "exo agent create - Create Agent identity",
+        "exo agent stake <amount> - Stake SOL (min 0.1)",
+        "exo agent unstake <amount> - Unstake SOL",
+        "exo agent status [address] - View Agent status",
+        "exo agent list - List all Agents"
+      ]
+    },
+    "cli_registration": {
+      "file": "exo-cli/src/index.ts",
+      "changes": [
+        "Imported agentCommand",
+        "Registered via program.addCommand(agentCommand)"
+      ]
+    }
+  },
+  "constraints_check": {
+    "ora_spinner": true,
+    "chalk_colors": true,
+    "reuse_getConfig": true,
+    "min_stake_validation": true
+  },
+  "note_to_csa": "P14-C03 完成。SDK 指令构建器和 CLI Agent 命令组全部实现。构建验证通过，5 个子命令均已注册。"
+}

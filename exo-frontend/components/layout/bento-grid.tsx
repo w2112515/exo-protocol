@@ -7,3 +7,6 @@ export function BentoGrid({ children, className }: { children: React.ReactNode, 
         </div>
     );
 }
+
+// RF07: displayName for React DevTools
+BentoGrid.displayName = "BentoGrid";

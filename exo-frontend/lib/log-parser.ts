@@ -1,9 +1,8 @@
-
 import { PublicKey } from '@solana/web3.js';
+import { EXO_CORE_PROGRAM_ID, EXO_HOOKS_PROGRAM_ID } from './constants';
 
-// Program IDs
-export const EXO_CORE_PROGRAM_ID = "CdamAXn5fCros3MktPxmbQKXtxd34XHATTLmh9jkn7DT";
-export const EXO_HOOKS_PROGRAM_ID = "C1iSwHyPWRR48pxbiztvQ6wt92mB7WfebgpEBdTv78kw";
+// Re-export for backwards compatibility
+export { EXO_CORE_PROGRAM_ID, EXO_HOOKS_PROGRAM_ID };
 
 // Event Types
 export enum EventType {

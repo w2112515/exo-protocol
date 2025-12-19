@@ -10,7 +10,10 @@ use crate::state::{
     PROTOCOL_CONFIG_SEED,
     ESCROW_SEED,
     DEFAULT_FEE_BASIS_POINTS,
+    MIN_STAKE_AMOUNT,
+    MAX_SLASH_COUNT,
 };
+use crate::instructions::staking::AGENT_VAULT_SEED;
 
 /// 初始化协议配置的账户上下文
 #[derive(Accounts)]
@@ -340,7 +343,7 @@ pub struct ChallengeEscrow<'info> {
     pub system_program: Program<'info, System>,
 }
 
-/// 解决挑战的账户上下文
+/// 解决挑战的账户上下文 (V2 - 含 Slash)
 #[derive(Accounts)]
 pub struct ResolveChallenge<'info> {
     #[account(
@@ -364,6 +367,29 @@ pub struct ResolveChallenge<'info> {
         bump = protocol_config.bump
     )]
     pub protocol_config: Account<'info, ProtocolConfig>,
+    /// 执行者 Agent 身份 (V2: 用于 Slash)
+    #[account(
+        mut,
+        seeds = [AGENT_SEED, executor_agent.owner.as_ref()],
+        bump = executor_agent.bump,
+        constraint = Some(executor_agent.owner) == escrow.executor @ EscrowError::ExecutorMismatch
+    )]
+    pub executor_agent: Account<'info, AgentIdentity>,
+    /// Agent 质押金库 PDA (V2: 用于 Slash 转账)
+    /// CHECK: PDA 地址
+    #[account(
+        mut,
+        seeds = [AGENT_VAULT_SEED, executor_agent.key().as_ref()],
+        bump
+    )]
+    pub agent_vault: SystemAccount<'info>,
+    /// 挑战者 (V2: 接收 Slash 奖励)
+    /// CHECK: 挑战者钱包地址
+    #[account(
+        mut,
+        constraint = Some(challenger.key()) == escrow.challenger @ EscrowError::ChallengerMismatch
+    )]
+    pub challenger: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -410,13 +436,45 @@ pub fn challenge(ctx: Context<ChallengeEscrow>, _proof: [u8; 64]) -> Result<()> 
     Ok(())
 }
 
-/// 解决挑战 - MVP 简化版: 管理员裁决
+/// 解决挑战 - MVP 简化版: 管理员裁决 (V2 - 含 Slash)
 /// 完整版应由 Verifier Committee 投票决定
 pub fn resolve_challenge(ctx: Context<ResolveChallenge>, challenger_wins: bool) -> Result<()> {
     let escrow = &mut ctx.accounts.escrow;
+    let executor_agent = &mut ctx.accounts.executor_agent;
     
     if challenger_wins {
-        // 挑战成功: Slash 执行者
+        // === V2: Slash 执行者 ===
+        let slash_amount = executor_agent.calculate_slash_amount();
+        
+        // 更新 Agent 状态
+        executor_agent.staked_amount = executor_agent.staked_amount
+            .checked_sub(slash_amount)
+            .ok_or(EscrowError::Overflow)?;
+        executor_agent.slashed_count = executor_agent.slashed_count.saturating_add(1);
+        executor_agent.reputation_score = executor_agent.reputation_score.saturating_sub(1000); // -10%
+        
+        // 从金库转出 slash 金额给挑战者 (50% 奖励)
+        let challenger_reward = slash_amount / 2;
+        let vault_info = ctx.accounts.agent_vault.to_account_info();
+        let challenger_info = ctx.accounts.challenger.to_account_info();
+        
+        if challenger_reward > 0 && vault_info.lamports() >= challenger_reward {
+            **vault_info.try_borrow_mut_lamports()? -= challenger_reward;
+            **challenger_info.try_borrow_mut_lamports()? += challenger_reward;
+            msg!("Challenger rewarded {} lamports", challenger_reward);
+        }
+        
+        // 质押不足或被罚 3 次则停用
+        if executor_agent.staked_amount < MIN_STAKE_AMOUNT || executor_agent.slashed_count >= MAX_SLASH_COUNT {
+            executor_agent.is_active = false;
+            msg!("Agent deactivated: staked={}, slashed_count={}", 
+                executor_agent.staked_amount, executor_agent.slashed_count);
+        }
+        
+        msg!("Agent slashed {} lamports, remaining stake: {}", slash_amount, executor_agent.staked_amount);
+        // === End V2 Slash ===
+        
+        // 挑战成功: 更新状态
         escrow.status = EscrowStatus::Slashed;
         
         // 退还买家本金
@@ -462,4 +520,6 @@ pub enum EscrowError {
     NoChallengeSlot,
     #[msg("Unauthorized")]
     Unauthorized,
+    #[msg("Challenger account mismatch")]
+    ChallengerMismatch,
 }

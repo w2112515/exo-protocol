@@ -126,4 +126,26 @@
   .text-gradient {
     @apply bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent;
   }
+
+  /* RF04: Scan line animation (migrated from styled-jsx) */
+  .scan-line {
+    animation: scan-line 3s ease-in-out infinite;
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    top: -2px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }

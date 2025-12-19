@@ -122,4 +122,19 @@ pub mod exo_core {
     pub fn resolve_challenge(ctx: Context<ResolveChallenge>, challenger_wins: bool) -> Result<()> {
         instructions::resolve_challenge(ctx, challenger_wins)
     }
+
+    /// 质押 SOL 激活 Agent
+    /// 
+    /// 最低质押 0.1 SOL (100_000_000 lamports)
+    /// 质押后 Agent 可以接单
+    pub fn stake_agent(ctx: Context<StakeAgent>, amount: u64) -> Result<()> {
+        instructions::stake_agent(ctx, amount)
+    }
+
+    /// 取消质押
+    /// 
+    /// 若剩余质押低于最低要求，Agent 将被停用
+    pub fn unstake_agent(ctx: Context<UnstakeAgent>, amount: u64) -> Result<()> {
+        instructions::unstake_agent(ctx, amount)
+    }
 }

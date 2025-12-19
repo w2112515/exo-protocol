@@ -32,6 +32,7 @@ import {
 } from './instructions/skill';
 import {
     AgentInstructionBuilder,
+    MIN_STAKE_AMOUNT,
 } from './instructions/agent';
 import {
     createEscrow,
@@ -40,6 +41,7 @@ import {
     cancelEscrow,
     EscrowInstructionBuilder,
 } from './instructions/escrow';
+import { ZKAgentHistory } from './instructions/zk';
 
 // ============================================================================
 // Types
@@ -253,6 +255,151 @@ export class AgentNamespace {
         const ix = this.close(agentAccount);
         return this.client.sendAndConfirm([ix]);
     }
+
+    /**
+     * 构建质押指令
+     */
+    stakeInstruction(amount: bigint | number): TransactionInstruction {
+        return this.builder.stake(amount);
+    }
+
+    /**
+     * 构建取消质押指令
+     */
+    unstakeInstruction(amount: bigint | number): TransactionInstruction {
+        return this.builder.unstake(amount);
+    }
+
+    /**
+     * 质押 SOL 并发送交易
+     *
+     * @param lamports - 质押金额 (lamports)
+     * @returns 交易结果
+     * @throws 如果金额低于最低质押 (0.1 SOL)
+     */
+    async stake(lamports: number): Promise<TransactionResult> {
+        if (lamports < MIN_STAKE_AMOUNT) {
+            throw new Error(`Minimum stake is ${MIN_STAKE_AMOUNT / 1e9} SOL (${MIN_STAKE_AMOUNT} lamports)`);
+        }
+        const ix = this.stakeInstruction(lamports);
+        return this.client.sendAndConfirm([ix]);
+    }
+
+    /**
+     * 取消质押 SOL 并发送交易
+     *
+     * @param lamports - 取消质押金额 (lamports)
+     * @returns 交易结果
+     */
+    async unstake(lamports: number): Promise<TransactionResult> {
+        const ix = this.unstakeInstruction(lamports);
+        return this.client.sendAndConfirm([ix]);
+    }
+
+    /**
+     * 获取 Agent 状态
+     *
+     * @param address - Agent 地址 (可选，默认当前用户)
+     * @returns Agent 状态信息
+     */
+    async getStatus(address?: string): Promise<AgentStatus> {
+        const targetPda = address
+            ? new PublicKey(address)
+            : this.agentPda;
+
+        const accountInfo = await this.client.connection.getAccountInfo(targetPda);
+
+        if (!accountInfo) {
+            return {
+                address: targetPda.toBase58(),
+                exists: false,
+                tier: 0,
+                stakedAmount: 0,
+                isActive: false,
+                reputationScore: 0,
+                totalEarnings: 0,
+                totalTasks: 0,
+                slashedCount: 0,
+            };
+        }
+
+        // 解析账户数据 (AgentIdentity V2 结构)
+        // 8 (discriminator) + 32 (owner) + 1 (tier) + 8 (earnings) + 8 (tasks) + 2 (rep) + 8 (created) + 1 (bump) + 8 (staked) + 1 (slashed) + 1 (active)
+        const data = accountInfo.data;
+        const tier = data[40] ?? 0;
+        const totalEarnings = Number(data.readBigUInt64LE(41));
+        const totalTasks = Number(data.readBigUInt64LE(49));
+        const reputationScore = data.readUInt16LE(57);
+        const stakedAmount = data.length > 68 ? Number(data.readBigUInt64LE(68)) : 0;
+        const slashedCount = data.length > 76 ? (data[76] ?? 0) : 0;
+        const isActive = data.length > 77 ? data[77] === 1 : stakedAmount >= MIN_STAKE_AMOUNT;
+
+        return {
+            address: targetPda.toBase58(),
+            exists: true,
+            tier,
+            stakedAmount,
+            isActive,
+            reputationScore,
+            totalEarnings,
+            totalTasks,
+            slashedCount,
+        };
+    }
+
+    /**
+     * 列出所有 Agent
+     *
+     * @param options - 筛选选项
+     * @returns Agent 列表
+     */
+    async list(options?: { limit?: number; activeOnly?: boolean }): Promise<AgentStatus[]> {
+        // 简化实现: 返回 mock 数据用于演示
+        // 真实实现需要 getProgramAccounts 查询
+        const mockAgents: AgentStatus[] = [
+            {
+                address: this.agentPda.toBase58(),
+                exists: true,
+                tier: 1,
+                stakedAmount: 200_000_000,
+                isActive: true,
+                reputationScore: 8500,
+                totalEarnings: 1_500_000_000,
+                totalTasks: 42,
+                slashedCount: 0,
+            },
+        ];
+
+        if (options?.activeOnly) {
+            return mockAgents.filter(a => a.isActive);
+        }
+
+        return mockAgents.slice(0, options?.limit ?? 10);
+    }
+}
+
+/**
+ * Agent 状态接口
+ */
+export interface AgentStatus {
+    /** Agent 地址 */
+    address: string;
+    /** 是否存在 */
+    exists: boolean;
+    /** Agent 等级 (0=Open, 1=Verified, 2=Premium) */
+    tier: number;
+    /** 质押金额 (lamports) */
+    stakedAmount: number;
+    /** 是否激活 */
+    isActive: boolean;
+    /** 信誉分数 (0-10000) */
+    reputationScore: number;
+    /** 总收益 (lamports) */
+    totalEarnings: number;
+    /** 总任务数 */
+    totalTasks: number;
+    /** 被罚次数 */
+    slashedCount: number;
 }
 
 // ============================================================================
@@ -481,6 +628,8 @@ export class ExoClient {
     public readonly escrow: EscrowNamespace;
     /** PDA 工具命名空间 */
     public readonly pda: PdaNamespace;
+    /** ZK 压缩历史命名空间 */
+    public readonly zkHistory: ZKAgentHistory;
 
     constructor(options: ExoClientOptions) {
         this.connection = options.connection;
@@ -503,6 +652,13 @@ export class ExoClient {
         this.agent = new AgentNamespace(this, publicKey, this.programId);
         this.escrow = new EscrowNamespace(this, publicKey, this.programId);
         this.pda = new PdaNamespace(this.programId);
+
+        // ZK History (可选，需要 Helius API Key)
+        this.zkHistory = new ZKAgentHistory(
+            this.connection,
+            process.env.HELIUS_API_KEY,
+            { mockMode: !process.env.HELIUS_API_KEY }
+        );
     }
 
     /**

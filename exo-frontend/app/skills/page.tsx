@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Terminal, Store, Filter } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { SkillBlinkCard } from "@/components/blinks/skill-blink-card";
+import { SkillCardSkeleton } from "@/components/blinks/skill-card-skeleton";
 import { useSkills } from "@/hooks/use-skills";
 
 const CATEGORIES = [
@@ -19,11 +20,20 @@ const CATEGORIES = [
 export default function SkillsPage() {
     const { data: skills = [], isLoading } = useSkills();
     const [selectedCategory, setSelectedCategory] = useState("all");
+    const [visibleCount, setVisibleCount] = useState(12);
 
     const filteredSkills = useMemo(() => {
         if (selectedCategory === "all") return skills;
         return skills.filter((skill) => skill.category === selectedCategory);
     }, [skills, selectedCategory]);
+
+    const visibleSkills = useMemo(() => {
+        return filteredSkills.slice(0, visibleCount);
+    }, [filteredSkills, visibleCount]);
+
+    const handleLoadMore = () => {
+        setVisibleCount((prev) => prev + 12);
+    };
 
     const categoryStats = useMemo(() => {
         const stats: Record<string, number> = { all: skills.length };
@@ -63,7 +73,10 @@ export default function SkillsPage() {
                             {CATEGORIES.map((cat) => (
                                 <button
                                     key={cat.id}
-                                    onClick={() => setSelectedCategory(cat.id)}
+                                    onClick={() => {
+                                        setSelectedCategory(cat.id);
+                                        setVisibleCount(12);
+                                    }}
                                     className={`px-3 py-1.5 rounded-lg text-xs font-mono whitespace-nowrap transition-all ${
                                         selectedCategory === cat.id
                                             ? "bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold shadow-[0_0_10px_rgba(168,85,247,0.2)]"
@@ -83,11 +96,10 @@ export default function SkillsPage() {
                 {/* Content */}
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <div className="flex items-center gap-3 text-white/50">
-                                <Terminal className="w-5 h-5 animate-pulse" />
-                                <span className="font-mono text-sm">Loading skills...</span>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {[...Array(8)].map((_, i) => (
+                                <SkillCardSkeleton key={i} />
+                            ))}
                         </div>
                     ) : filteredSkills.length === 0 ? (
                         <div className="flex items-center justify-center py-20">
@@ -112,10 +124,25 @@ export default function SkillsPage() {
 
                             {/* Skills Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {filteredSkills.map((skill) => (
+                                {visibleSkills.map((skill) => (
                                     <SkillBlinkCard key={skill.skill_id} skill={skill} />
                                 ))}
                             </div>
+
+                            {/* Load More Button */}
+                            {visibleCount < filteredSkills.length && (
+                                <div className="mt-12 flex justify-center">
+                                    <button
+                                        onClick={handleLoadMore}
+                                        className="px-6 py-3 rounded-lg bg-white/5 border border-white/10 text-white/70 font-mono text-sm hover:bg-white/10 hover:text-white transition-all flex items-center gap-2"
+                                    >
+                                        <span>Load More Skills</span>
+                                        <span className="px-1.5 py-0.5 rounded bg-black/40 text-xs text-white/40">
+                                            {filteredSkills.length - visibleCount} remaining
+                                        </span>
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
