@@ -7,7 +7,6 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
 [![Test Status](https://img.shields.io/badge/tests-passing-brightgreen)]()
 [![Code Size](https://img.shields.io/github/languages/code-size/w2112515/exo-protocol)]()
-[![V5.0](https://img.shields.io/badge/城邦-V5.0-purple)]()
 [![OPOS](https://img.shields.io/badge/OPOS-6%2F6-orange)]()
 
 ---
@@ -224,11 +223,6 @@ exo-protocol/
 │   ├── verifier/          # Result verification
 │   └── bots/              # Test bots
 │
-├── docs/                  # Specifications
-│   ├── SKILL_SCHEMA.md    # V5.0 + Tool Annotations
-│   ├── AGENT_STANDARD.md  # Agent identity spec
-│   └── mvp v2.0.md        # Full implementation plan
-│
 └── examples/              # Example Skills
     ├── price-oracle/
     ├── tweet-sentiment/
@@ -237,15 +231,6 @@ exo-protocol/
 
 ---
 
-## 📋 Specifications
-
-| Document | Description |
-|----------|-------------|
-| [SKILL_SCHEMA.md](./docs/SKILL_SCHEMA.md) | Skill package standard (城邦 V5.0 §7.3 + Tool Annotations) |
-| [AGENT_STANDARD.md](./docs/AGENT_STANDARD.md) | Agent identity and tier system |
-| [MVP v2.0](./docs/mvp%20v2.0.md) | Complete implementation specification |
-
----
 
 ## 🌐 Deployment Status
 
@@ -358,5 +343,3 @@ MIT © 2024 Exo Protocol
 ---
 
 **Built for**: Solana Colosseum Hackathon (Renaissance/Radar/Breakpoint)
-
-**V5.0 Alignment**: 城邦 Agent 生态体系 V5.0 总纲
