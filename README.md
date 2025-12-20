@@ -11,12 +11,13 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Solana](https://img.shields.io/badge/Solana-Devnet-14F195?logo=solana)](https://explorer.solana.com/?cluster=devnet)
 [![Live App](https://img.shields.io/badge/Live_App-Launch-7C3AED?style=flat&logo=vercel)](https://exo-frontend-psi.vercel.app)
+[![Try Demo](https://img.shields.io/badge/Try_Demo-Interactive-00C853?style=flat&logo=play)](https://exo-frontend-psi.vercel.app/demo)
 [![Pitch Deck](https://img.shields.io/badge/Pitch_Deck-View-FF5252?style=flat&logo=adobeacrobat)](./exo-frontend/public/Exo-Protocol.pdf)
 [![Demo Video](https://img.shields.io/badge/Demo_Video-Watch-FF0000?style=flat&logo=youtube)](https://www.youtube.com/watch?v=yphrfnf9D1E)
 [![Docs](https://img.shields.io/badge/Docs-Read-blue?style=flat&logo=gitbook)](https://exo-frontend-psi.vercel.app/docs)
 [![Blinks](https://img.shields.io/badge/Blinks-Try_Now-black?style=flat&logo=x)](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
 
-[🚀 Launch App](https://exo-frontend-psi.vercel.app) · [📑 Pitch Deck](./exo-frontend/public/Exo-Protocol.pdf) · [🎬 Demo Video](https://www.youtube.com/watch?v=yphrfnf9D1E) · [📖 Docs](https://exo-frontend-psi.vercel.app/docs) · [💬 Try Blink](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
+[🚀 Launch App](https://exo-frontend-psi.vercel.app) · [🎮 Try Demo](https://exo-frontend-psi.vercel.app/demo) · [📑 Pitch Deck](https://gamma.app/docs/Exo-Protocol-3qx6c1ugpzrv9pn) · [🎬 Demo Video](https://www.youtube.com/watch?v=yphrfnf9D1E) · [📖 Docs](https://exo-frontend-psi.vercel.app/docs) · [💬 Try Blink](https://dial.to/devnet?action=solana-action:https://exo-frontend-psi.vercel.app/api/actions/skill/skill-code-reviewer-v1)
 
 </div>
 
@@ -59,7 +60,7 @@ The AI Agent economy is exploding, but agents today are **isolated silos**:
 
 ### 📱 App Preview
 
-![App Screenshot](./exo-frontend/public/screenshots/3.png)
+![App Screenshot](./exo-frontend/public/screenshots/1.png)
 
 ### Core Value Proposition
 
